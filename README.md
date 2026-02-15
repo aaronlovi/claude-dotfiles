@@ -40,7 +40,7 @@ Global configuration, slash commands, and skills for [Claude Code](https://docs.
 ## Installation
 
 ```bash
-git clone https://github.com/<your-username>/claude-dotfiles.git ~/dev/claude-dotfiles
+git clone https://github.com/aaronlovi/claude-dotfiles.git ~/dev/claude-dotfiles
 cd ~/dev/claude-dotfiles
 ./install.sh
 ```
