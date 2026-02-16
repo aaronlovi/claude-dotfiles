@@ -82,11 +82,11 @@ Group terms by subdomain (e.g., Core Domain, Integrations, User Management, Comp
 Identify the bounded context(s) within the codebase and the external contexts it integrates with:
 
 1. **Core responsibilities**: What does this service OWN? What data is authoritative here?
-2. **Excluded responsibilities**: What is explicitly delegated to other services?
+2. **Excluded responsibilities**: What operations does this service NOT perform that it references via external API calls, message consumption, or configuration pointing to other services? Identify by scanning for outbound HTTP/gRPC clients, message consumers, and external service URLs in configuration.
 3. **Related contexts**: Map all external systems and their relationships.
 4. **Context ownership matrix**: For every piece of data, who owns it and who consumes it?
 
-Produce an ASCII diagram showing the bounded contexts and their communication channels.
+Produce a Mermaid `graph TD` or `flowchart` diagram showing the bounded contexts and their communication channels.
 
 If the service contains multiple potential subdomains (e.g., bonuses within a financial service), analyze whether they should be separate bounded contexts:
 - Arguments for keeping together
@@ -157,7 +157,7 @@ Evaluate each DDD tactical pattern. For each, assess whether it's present, how w
 
 For every entity or concept that has status transitions:
 
-1. **Draw the state machine** as an ASCII diagram showing all states and transitions.
+1. **Draw the state machine** as a Mermaid `stateDiagram-v2` diagram showing all states and transitions.
 2. **Document valid transitions** in a table: From → To, Trigger, Source file/line.
 3. **Identify invariants** at each state.
 4. **Note enforcement mechanism** (application code vs stored procedure vs database constraint).
@@ -167,7 +167,7 @@ For every entity or concept that has status transitions:
 Identify the overall architectural pattern(s) used:
 
 1. **Name the pattern**: Rich Domain Model, Transaction Script, Table Module, Smart Database, CQRS, Event Sourcing, etc.
-2. **Draw the layered architecture** as an ASCII diagram.
+2. **Draw the layered architecture** as a Mermaid `graph TD` diagram with subgraphs for each layer.
 3. **Assess DDD alignment** for each principle:
 
 | Principle | Alignment (High/Medium/Low/None) | Evidence |
@@ -178,7 +178,7 @@ Identify the overall architectural pattern(s) used:
 
 ### Phase 7: Recommendations
 
-Provide 4-8 specific, actionable recommendations. For each:
+Provide 4-8 specific, actionable recommendations. Each must specify: (1) a concrete code-level change (file, class, or pattern to add/modify/remove), (2) the specific DDD alignment problem it addresses, (3) a before/after code sketch. For each:
 - What to do
 - Why (what problem it solves)
 - Brief code example showing the target state
@@ -218,7 +218,7 @@ Create the `docs/` directory if it doesn't exist, then write the output to `docs
 (Core responsibilities, excluded responsibilities)
 
 ### Related Bounded Contexts
-(ASCII diagram, ownership matrix)
+(Mermaid `graph TD` or `flowchart` diagram, ownership matrix)
 
 ### Potential Subdomain Separations
 (Analysis of whether internal subdomains should be separate)
@@ -258,7 +258,7 @@ Create the `docs/` directory if it doesn't exist, then write the output to `docs
 ## State Machines
 
 ### {State Machine 1}
-(ASCII diagram + transition table)
+(Mermaid `stateDiagram-v2` diagram + transition table)
 
 ## Architectural Assessment
 
@@ -266,7 +266,7 @@ Create the `docs/` directory if it doesn't exist, then write the output to `docs
 (Principle alignment table)
 
 ### Architectural Style
-(Layered diagram, trade-offs)
+(Mermaid `graph TD` layered diagram with subgraphs, trade-offs)
 
 ## Recommendations
 
@@ -279,7 +279,7 @@ Create the `docs/` directory if it doesn't exist, then write the output to `docs
 - This analysis must be THOROUGH. Read every enum, every stored procedure name, every proto file. The ubiquitous language section is the foundation — if you miss terms here, downstream analysis suffers.
 - Be HONEST about DDD alignment. If the codebase uses Transaction Script and anemic entities, say so — it's often a valid architectural choice, especially for systems requiring strong transactional consistency.
 - Don't just identify what's missing — explain WHY the current approach was likely chosen (trade-offs) and WHETHER the missing pattern would actually improve things.
-- State machines are critical for any system with workflows. Document EVERY status enum and its valid transitions.
+- State machines are critical for any system with workflows. Document status enums with 3+ states and at least one non-trivial transition guard.
 - Include code locations (file:line or table name) for everything. This document should be navigable by a developer who wants to verify your analysis.
 - If the codebase has business logic in stored procedures or database functions, those are PRIMARY SOURCES. Read them with the same rigor as application code.
 - The recommendations should be pragmatic. Don't recommend rewriting a working system to use rich domain models unless there's a compelling reason.

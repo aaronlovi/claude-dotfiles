@@ -1,6 +1,7 @@
 ---
 name: prompt-rules
 description: Shared conventions for the prompt system
+allowed-tools: []
 user-invocable: false
 ---
 

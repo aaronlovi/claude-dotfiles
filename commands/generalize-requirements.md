@@ -57,6 +57,8 @@ Create a terminology mapping table covering ALL of these categories:
 
 Downstream commands (`/generalize-ddd-analysis`, `/generalize-flows`) consume this table to transform all remaining documents. Every domain-specific term that appears in the DDD analysis, flow catalog, or requirements must have a mapping entry here.
 
+**Conflict resolution:** If two original terms would map to the same generalized term, disambiguate by appending the domain area (e.g., `session` in auth vs. `session` in activity becomes `auth-session` and `activity-session`). If the BR and TR traceability appendices disagree on a term mapping, the BR mapping is authoritative for entity/concept names and the TR mapping is authoritative for technical/infrastructure names.
+
 Apply these substitutions consistently across ALL requirements.
 
 ### Phase 3: Structural Changes
@@ -95,6 +97,8 @@ Use this document structure for each file:
 ### `docs/generalized-requirements/business-requirements.md`
 ```
 # Business Requirements: {Generalized Service Name}
+
+## Table of Contents
 
 ## External Dependencies
 
@@ -148,6 +152,8 @@ Use this document structure for each file:
 ### `docs/generalized-requirements/technical-requirements.md`
 ```
 # Technical Requirements: {Generalized Service Name}
+
+## Table of Contents
 
 ## Implementation Phases
 

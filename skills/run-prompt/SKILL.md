@@ -21,14 +21,14 @@ Execute a prompt from `.prompts/`.
 
    | Input | Resolves To |
    |-------|-------------|
-   | (empty) | Ask user to choose from available prompts. If no `.prompts/` directory exists, say: "No prompts found. Create one with `/create-prompt` or `/create-meta-prompt`." |
+   | (empty) | List all available prompts showing their number/slug, type (task/research/plan), and first line of the Objective section, then ask the user to choose. If no `.prompts/` directory exists, say: "No prompts found. Create one with `/create-prompt` or `/create-meta-prompt`." |
    | `3`, `03`, or `003` (bare numbers — zero-padded to 3 digits) | `.prompts/003-*.md` |
    | `auth` (substring match) | `.prompts/*auth*.md` or `.prompts/auth-*/prompt.md` |
    | `auth-research` | `.prompts/auth-research/prompt.md` |
    | Full path (exists) | Use directly |
    | Full path (doesn't exist) | Report: "File not found at {path}. Check the path and try again." |
 
-   If multiple matches (including numeric collisions like `003-foo.md` and `003-bar.md`), list and ask user to choose. When both file matches (`.prompts/*auth*.md`) and directory matches (`.prompts/auth-*/prompt.md`) exist, list all matches and ask the user to choose.
+   If resolution produces more than one match (regardless of match type — numeric, substring, or mixed file/directory), list all matches with their type and ask the user to choose.
 
    When resolving targets, exclude `.progress.md` files from matches — these are progress tracking files, not prompts.
 
@@ -58,7 +58,7 @@ Research prompts are single-pass (no checkpoint workflow, no progress tracking):
    1. Re-read research.md
    2. Check against these criteria:
       - **Consistency**: Findings don't contradict each other; file paths referenced actually exist; metadata Status accurately reflects completeness
-      - **Correctness**: Questions from the prompt are all addressed (or explicitly marked unanswered in Open Questions); code patterns cited are accurate (not hallucinated)
+      - **Correctness**: Questions from the prompt are all addressed (or explicitly marked unanswered in Open Questions); for each file path or code pattern cited in the findings, re-read the file to verify it exists and matches what was described — remove or correct any references to files or symbols that don't exist
       - **Information density**: Enough detail to write a plan from, but no padding. If an answer is "there is no existing pattern for X," say that directly — don't speculate. If findings are thin, set Status to `partial` and list gaps in Open Questions.
    3. If changes needed — edit research.md in place, continue loop
    4. If no changes needed — stop iterating
@@ -89,29 +89,10 @@ Research prompts are single-pass (no checkpoint workflow, no progress tracking):
 
 ## Checkpoint Workflow (CRITICAL)
 
-For implementation work, execute ONE CHECKPOINT AT A TIME:
-
-```
-1. Check for existing progress.md - skip completed checkpoints
-2. Implement checkpoint (code + unit tests for this checkpoint's code)
-   - Unit tests are written IN the same checkpoint as the code they test
-   - Never defer tests to a later checkpoint
-3. Stop and report:
-   - What was implemented
-   - Files created/modified
-   - Tests added
-4. Ask user to review, compile, run tests
-   - ALL tests (existing + new) must pass before proceeding
-5. Wait for user to report results
-6. Address any feedback
-7. User confirms: compiles, ALL tests pass, committed
-8. Update progress.md with completed checkpoint
-9. Only then proceed to next checkpoint
-```
-
-**Never batch. Never skip review. Never proceed without confirmation. Never leave tests for a later checkpoint.**
-
-Exception: a checkpoint that is purely non-code work (documentation, configuration) does not need unit tests.
+Follow the checkpoint workflow defined in `/prompt-rules`. Key points:
+- Execute ONE CHECKPOINT AT A TIME
+- Never batch. Never skip review. Never proceed without confirmation. Never leave tests for a later checkpoint.
+- Exception: a checkpoint that is purely non-code work (documentation, configuration) does not need unit tests.
 
 ## Progress Tracking
 

@@ -43,6 +43,8 @@ Workflow: **Research** → **Plan** → **Implement** (using plan directly)
 
 4. **Determine which phase to generate**
 
+   Parse the `## Metadata` / `### Status` section at the end of `research.md` or `plan.md`. If no Metadata section exists, treat Status as `success`.
+
    | Condition | Action |
    |-----------|--------|
    | No `research.md` | Generate **research** prompt |
@@ -140,6 +142,9 @@ After writing the prompt, iterate up to 5 times:
    - **Consistency**: Context paths match actual project structure; cross-references between research/plan use correct filenames and slugs; output instructions match what `/run-prompt` expects
    - **Correctness**: Research questions are specific and answerable by reading code (not vague "what do you think about X"); plan instructions reference research.md correctly; checkpoint structure follows the template
    - **Information density**: Enough detail for an LLM to execute without guessing, but no redundant restatements or filler. Research questions that overlap should be merged. Explore sections should list concrete paths, not "relevant files."
+   - **Prompt-type-specific checks**:
+     - If generating a research prompt: verify all Questions are specific and answerable by reading code; verify Explore section lists concrete file paths, not "relevant files."
+     - If generating a plan prompt: verify it references the correct `research.md` path; verify the slug in all paths is consistent; verify checkpoint structure instructions match the `/prompt-rules` template.
 3. If changes needed — edit the file in place and continue the loop
 4. If no changes needed — stop iterating
 

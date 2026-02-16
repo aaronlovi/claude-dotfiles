@@ -78,7 +78,7 @@ For each ID:
 ### Check 2: Coverage Matrix Completeness
 
 Across all coverage matrices in all Jira task documents:
-- Every requirement ID from the requirements documents must appear in at least one coverage matrix (for multi-service architectures, a requirement appears in the service it is assigned to).
+- Every requirement ID from the requirements documents (including `technical-requirements.observability-and-testing.md` for OBS-* and K6-* IDs) must appear in at least one coverage matrix (for multi-service architectures, a requirement appears in the service it is assigned to).
 - The "Covered By" column must reference valid task IDs from the same service's task document.
 - The task IDs listed must actually reference that requirement in their "Requirements covered:" header field. Description-only references are insufficient.
 
@@ -127,7 +127,7 @@ For cross-service dependencies:
 
 Prefer the generalized DDD analysis (`docs/generalized-requirements/ddd-analysis.md`) if it exists; fall back to the original (`docs/ddd-analysis.md`). If using the original, expect and tolerate terminology divergences documented in the traceability appendices.
 
-- Every ubiquitous language term used in requirements and Jira tasks matches the DDD glossary.
+- Every ubiquitous language term used in requirements and Jira tasks matches the DDD glossary. Focus on terms that appear in requirement titles and Jira task titles. Description-body synonyms are acceptable if the title uses the canonical DDD glossary term. Flag only exact mismatches (e.g., "user account" in requirements vs. "account" in DDD glossary), not stylistic variations.
 - Every state machine in the DDD analysis is covered by at least one requirement and one Jira task.
 - Service boundaries in the decomposition document align with bounded contexts in the DDD analysis (or divergences are documented).
 - Aggregate boundaries are respected in task scoping (no single task modifies multiple aggregates without justification).
@@ -146,7 +146,7 @@ If a flow catalog exists in the requirements directory, verify:
 - Every BR-* (or GBR-*) requirement appears in the Covered Requirements or Uncovered Requirements subsection. Every TR-* (or GTR-*) requirement appears in Covered Requirements or System-Wide Constraints.
 - All requirement IDs referenced in flow Overview tables and Error Path tables are valid.
 - Flow catalog terminology matches generalized requirements terminology (for generalized flow catalogs).
-- Every flow referenced in Jira task descriptions exists in the flow catalog.
+- If flows are referenced in Jira task descriptions, verify each referenced flow exists in the flow catalog. Do not flag tasks that don't reference flows.
 - The Uncovered Requirements section is consistent with the Jira task coverage matrix (requirements uncovered by flows may still be covered by tasks, but flag any requirement uncovered by both).
 
 If no flow catalog exists, skip this check.

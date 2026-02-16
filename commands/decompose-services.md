@@ -32,7 +32,7 @@ Read all requirements and identify natural groupings. If a DDD analysis is avail
 1. **Data ownership**: Which requirements operate on the same core data? Group them.
 2. **Transactional boundaries**: Which operations must be atomic together? They belong in the same service.
 3. **Change frequency**: Requirements that change together should be in the same service.
-4. **Team ownership**: If different teams own different areas, those are natural boundaries.
+4. **Team ownership**: If CODEOWNERS files, directory naming, or documentation indicate different teams own different areas, those are natural boundaries. Skip if no ownership signals are present in the codebase.
 5. **Scaling profiles**: Requirements with different load patterns (high-frequency reads vs batch processing) may warrant separation.
 
 ### Phase 2: Define Service Candidates
@@ -81,9 +81,16 @@ Write to `docs/generalized-requirements/service-decomposition.md`:
 ```
 # Service Decomposition
 
+## Table of Contents
+
 ## Service Map
 
-(ASCII diagram showing services and their communication)
+```mermaid
+graph TD
+    ServiceA["{Service 1 Name}"] -->|"mechanism: data"| ServiceB["{Service 2 Name}"]
+    ServiceB -->|"mechanism: data"| ServiceC["{Service 3 Name}"]
+    %% Add nodes and edges for each service and integration point
+```
 
 ## Services
 

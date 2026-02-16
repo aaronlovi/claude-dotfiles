@@ -93,7 +93,7 @@ For EVERY task, apply the observability decision matrix:
 | Adds an API endpoint | RED metrics: request duration histogram + request counter (rate, errors, latency) |
 | Adds a background job | Job duration histogram, run counter, records processed counter |
 | Adds an external API call | Dependency latency histogram, error counter by type |
-| Handles a core business transaction (financial, order, subscription, etc.) | Business metric counters: count + amount by relevant dimensions |
+| Handles an operation that creates, modifies, or completes a domain entity tracked in the business requirements (any entity referenced by 3+ GBR-* requirements qualifies as "core") | Business metric counters: count + amount by relevant dimensions |
 | Adds Kafka consumption | Consumer lag metric, message processing rate |
 | Adds Kafka production | Message publish rate, publish errors |
 | Changes concurrency/locking | Lock contention metrics |
@@ -134,15 +134,43 @@ For each task, produce:
 
 ### Phase 6: Dependency Graph
 
-Create an ASCII art dependency graph showing all tasks and their relationships. Use these conventions:
-- Vertical arrows (│ ▼) for primary dependencies
-- Horizontal branches (├── ┐ └──) for parallel tasks
-- Annotations `(← TASK-ID)` for dependencies not shown as arrows
-- Group by phase with labels
+Create a Mermaid `graph TD` dependency graph showing all tasks and their relationships. Use these conventions:
+- Each node uses the format `ID[ID: Short Title]`
+- Arrows point from dependency to dependent (A --> B means "A must be done before B")
+- Group by phase using Mermaid subgraphs with `subgraph Phase N: Label` blocks
+- For cross-phase dependencies not on the main chain, add the arrow explicitly
+
+Example for a 6-task service:
+
+````mermaid
+graph TD
+    subgraph Phase 0: Infrastructure
+        SVC-001[SVC-001: Project scaffolding]
+        SVC-002[SVC-002: Database setup]
+    end
+    subgraph Phase 1: Foundation
+        SVC-003[SVC-003: Domain models]
+    end
+    subgraph Phase 2: Core Features
+        SVC-004[SVC-004: Repository layer]
+        SVC-005[SVC-005: Service layer]
+    end
+    subgraph Phase 3: API
+        SVC-006[SVC-006: API endpoints]
+    end
+
+    SVC-001 --> SVC-002
+    SVC-001 --> SVC-003
+    SVC-002 --> SVC-004
+    SVC-003 --> SVC-004
+    SVC-003 --> SVC-005
+    SVC-004 --> SVC-005
+    SVC-005 --> SVC-006
+````
 
 ### Phase 7: Coverage Matrix
 
-Create a table mapping EVERY requirement ID to the task(s) that implement it. Use these columns:
+Create a table mapping EVERY requirement ID to the task(s) that implement it. This includes GBR-* and GTR-* IDs from the generalized requirements as well as OBS-* and K6-* IDs from `technical-requirements.observability-and-testing.md`. Use these columns:
 
 ```
 | Requirement ID | Covered By | Notes |
@@ -166,6 +194,10 @@ Write one file per service: `docs/generalized-requirements/jira-tasks.{service-n
 ```
 # Jira Tasks: {Service Name}
 
+## Table of Contents
+
+(Auto-generated TOC listing all phase headings, Summary Table, and Requirement Coverage Matrix)
+
 ## Cross-Service Dependencies
 
 (Omit this section for single-service architectures)
@@ -175,7 +207,7 @@ Write one file per service: `docs/generalized-requirements/jira-tasks.{service-n
 
 ## Implementation Order
 
-(ASCII dependency graph — see Phase 6)
+(Mermaid dependency graph — see Phase 6)
 
 ## Phase 0: Infrastructure
 
@@ -199,6 +231,7 @@ Write one file per service: `docs/generalized-requirements/jira-tasks.{service-n
 ```
 
 Also write: `docs/generalized-requirements/technical-requirements.observability-and-testing.md`
+- Include a `## Table of Contents` section after the document title, listing all major sections.
 - Use `OBS-{###}` as the ID prefix for observability requirements and `K6-{###}` for load test scenarios (zero-padded 3-digit numbers starting from 001, e.g., OBS-001, K6-001). These are new requirement IDs (like GBR/GTR) defined in this document and referenced from task acceptance criteria. They are validated by `/review-requirements` Check 1.
 - Cross-cutting observability standards (RED metrics patterns, structured logging, tracing)
 - Dashboard requirements (operational, cross-service, business metrics)
@@ -220,7 +253,11 @@ For each Jira task, copy and evaluate:
 - [ ] Does this task add an API endpoint? → Add RED metrics (OBS-{ref})
 - [ ] Does this task add a background job? → Add job metrics (OBS-{ref})
 - [ ] Does this task call an external API? → Add dependency metrics (OBS-{ref})
-- [ ] Does this task handle a core business transaction? → Add business metrics (OBS-{ref})
+- [ ] Does this task handle an operation that creates, modifies, or completes a core domain entity? → Add business metrics (OBS-{ref})
+- [ ] Does this task add Kafka consumption? → Add consumer lag and processing rate metrics (OBS-{ref})
+- [ ] Does this task add Kafka production? → Add publish rate and error metrics (OBS-{ref})
+- [ ] Does this task change concurrency/locking? → Add lock contention metrics (OBS-{ref})
+- [ ] Does this task add significant database operations? → Add connection pool gauge and query duration histogram (OBS-{ref})
 - [ ] Is this task on a critical path? → Add K6 load test scenario (K6-{ref})
 
 ## Worked Example

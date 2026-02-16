@@ -110,6 +110,8 @@ Create `docs/requirements/` if it doesn't exist, then write two files:
 ```
 # Business Requirements: {Service Name}
 
+## Table of Contents
+
 ## External Dependencies
 
 | Dependency | Required For | Mechanism |
@@ -142,6 +144,8 @@ Create `docs/requirements/` if it doesn't exist, then write two files:
 ### `docs/requirements/technical-requirements.md`
 ```
 # Technical Requirements: {Service Name}
+
+## Table of Contents
 
 ## Implementation Phases
 

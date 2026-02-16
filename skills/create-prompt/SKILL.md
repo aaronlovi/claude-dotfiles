@@ -27,7 +27,7 @@ If a dedicated slash command exists for the task type (e.g., `/ddd-analysis`, `/
 1. **Read project context**
    - `CLAUDE.md` (required if exists)
    - `README.md`
-   - Relevant source files
+   - Relevant source files: read files directly referenced in the task description. If the task mentions a module or feature, read its entry point and up to 3 related files. Do not exhaustively explore — use `/create-meta-prompt` if broader exploration is needed.
 
 2. **Clarify if needed** (1-2 questions max)
    - What does success look like?

@@ -132,7 +132,14 @@ Create the output directory (`docs/codebase-analysis/`) if it does not exist, th
 
 ## Data Flow Diagrams
 
-(ASCII diagrams showing how data flows through the system)
+```mermaid
+graph LR
+    A[Input Source] --> B[Processing Layer]
+    B --> C[Data Store]
+    B --> D[External Service]
+```
+
+(Use Mermaid flowchart/graph syntax to show how data flows through the system)
 ```
 
 ## Important
@@ -140,6 +147,6 @@ Create the output directory (`docs/codebase-analysis/`) if it does not exist, th
 - Do NOT try to understand all business logic in this phase. The reading order is a MAP, not a summary.
 - Focus on STRUCTURE over BEHAVIOR. The goal is to know WHERE things are, not WHAT they do.
 - If the codebase is large, group files into sections of 10-15 files in the Reading Order output (each Group heading constitutes one reading session).
-- Flag any "here be dragons" areas — complex, poorly organized, or critical sections that need extra attention.
+- Flag any "here be dragons" areas: deeply nested conditionals (3+ levels), methods over 100 lines, files over 500 lines, or files imported by more than 10 other files.
 - If the codebase includes stored procedures or database functions with business logic, treat them as primary sources equal to application code.
 - **Next step**: Run `/extract-requirements` with the generated reading order to extract business and technical requirements.

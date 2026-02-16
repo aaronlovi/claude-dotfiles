@@ -46,7 +46,7 @@ Apply the terminology map to every section of the original DDD analysis. Preserv
 **Sections requiring special attention:**
 
 - **Ubiquitous Language** (MOST IMPORTANT): Replace every domain-specific term, update definitions, update ALL enum value lists. Remove platform-specific operator/license values (replace with "configurable" note). Add a note at the top: "This glossary uses platform-agnostic terminology. See [original DDD analysis](../ddd-analysis.md) for the codebase-specific terms."
-- **State Machines**: Update ALL diagrams, transition tables, and invariant descriptions using the master terminology map. If the service decomposition extracted a subsystem that owns a state machine, note the extraction and simplify accordingly.
+- **State Machines**: Update ALL diagrams, transition tables, and invariant descriptions using the master terminology map. If the service decomposition extracted a subsystem that owns a state machine, note the extraction and apply this rule: remove the subsystem's detailed tactical pattern entries (entities, aggregates, repositories) and replace with a single summary row noting the extraction. Preserve the subsystem's entry in the bounded contexts section with a cross-reference to the service decomposition document.
 - **Context Mapping**: Replace specific technology references where the generalized TRs use generic terms (e.g., "Debezium" → "CDC connector", "Kafka" → "message broker"). Keep pattern classifications unchanged (Customer-Supplier, ACL, etc.).
 - **All other sections** (Executive Summary, Bounded Contexts, Tactical Patterns, Architectural Assessment, Recommendations): Apply terminology substitutions throughout. Preserve all coupling assessments, alignment ratings, and recommendation types.
 

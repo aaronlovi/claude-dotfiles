@@ -76,7 +76,7 @@ Before writing the output, verify:
 | No original IDs remain | No BR-* or TR-* references in the output (except in parenthetical "(original: ...)" notes if needed for traceability) |
 | No original-specific terms remain | No operator names, vendor names, or domain-specific jargon that was mapped in Phase 1 |
 | ID references are valid | Every GBR-*/GTR-* ID referenced exists in the generalized requirements documents |
-| Coverage is complete | Every GBR-* and GTR-* requirement referenced in the generalized requirements documents appears in the Requirement Coverage section |
+| Coverage is complete | Every GBR-* requirement from the generalized business requirements appears in at least one flow's Requirements list in the Requirement Coverage section, and every GBR-*/GTR-* ID referenced within the generalized flow catalog exists in the generalized requirements documents. Requirements listed in the generalized requirements' "Excluded from This Document" or "Extracted to Separate Services" sections are exempt from coverage. |
 
 ## Output Format
 
