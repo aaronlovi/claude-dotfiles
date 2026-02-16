@@ -88,6 +88,17 @@ ls .prompts/[0-9][0-9][0-9]-*.md 2>/dev/null | sort | tail -1
 ```
 Increment highest number, or start at `001`. Always zero-pad to 3 digits. The glob `[0-9][0-9][0-9]-*.md` ensures only numbered task prompts are matched, excluding progress files and non-numeric filenames.
 
+## Self-Review (iterate up to 5 times)
+
+After writing the prompt, iterate up to 5 times:
+1. Re-read the file you just wrote
+2. Check against these criteria:
+   - **Consistency**: Checkpoint descriptions use parallel structure; context section matches actual project files; verification commands match CLAUDE.md
+   - **Correctness**: Checkpoints are in a buildable order (no forward references); each checkpoint's tests cover its own code; no dedicated testing checkpoint at the end
+   - **Information density**: Enough detail for an LLM to implement without guessing, but no redundant restatements or filler. If a checkpoint says "implement X" but doesn't say *how* or *where*, add specifics. If it over-explains something obvious, trim it.
+3. If changes needed — edit the file in place and continue the loop
+4. If no changes needed — stop iterating
+
 ## After Saving
 
 Say: "Created `.prompts/NNN-name.md` with N checkpoints. Run with `/run-prompt NNN` or review first."
