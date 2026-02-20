@@ -168,6 +168,21 @@ graph TD
     SVC-005 --> SVC-006
 ````
 
+### Phase 6.5: Independent Testability Validation
+
+After generating all tasks (Phase 5) and the dependency graph (Phase 6), validate that every task is independently testable:
+
+For each task, ask: **"Can this task's acceptance criteria — especially integration or functional tests — actually pass using only this task's deliverables, without needing work from a dependent task?"**
+
+Common failure patterns to check for:
+- **Empty infrastructure**: A task creates database schemas, repositories, or data access modules, but the entities/seed data that populate them are in a separate downstream task. The infrastructure task's integration tests can't run against empty structures.
+- **Inert abstractions**: A task creates interfaces/contracts and a registration mechanism, but the first concrete implementation is in a different task. There's nothing to test beyond "it compiles."
+- **Wiring without endpoints**: A task sets up middleware, request pipelines, or routing, but the first endpoint that exercises the pipeline is in another task.
+
+**Resolution:** Merge the infrastructure/abstraction task with the first task that populates or exercises it. The merged task should be the smallest unit that produces testable behavior. Update the dependency graph and summary table accordingly.
+
+After merging, re-verify the dependency graph is still acyclic and that no task exceeds the size guideline (1-3 days, or the relaxed target for large requirement sets).
+
 ### Phase 7: Coverage Matrix
 
 Create a table mapping EVERY requirement ID to the task(s) that implement it. This includes GBR-* and GTR-* IDs from the generalized requirements as well as OBS-* and K6-* IDs from `technical-requirements.observability-and-testing.md`. Use these columns:
@@ -270,6 +285,7 @@ For each Jira task, copy and evaluate:
 - Each task should be completable in 1-3 days by a single developer. If it's bigger, split it.
 - Acceptance criteria must be CHECKBOXES, not prose. Each one is pass/fail.
 - Every acceptance criteria should reference the requirement ID it satisfies.
+- **Language-agnostic tasks**: Task descriptions and acceptance criteria must NOT reference specific programming languages, frameworks, or library APIs. They should describe *what* the system does, not *how* a particular framework implements it. For example: write "Create the data access module with repository interfaces for User and Role entities" instead of "Create the EF Core DbContext with IRepository<User> and IRepository<Role>". Write "Add request authentication middleware that validates JWT tokens" instead of "Add ASP.NET Core middleware using JwtBearerHandler". The developer implementing the task chooses the framework and libraries. If the input requirements still contain framework-specific terms that weren't caught by `/generalize-requirements`, map them to language-agnostic equivalents during task generation — do not propagate them into the tasks.
 - The dependency graph must match the "Blocked by" fields in every task header AND the summary table. All three must be consistent.
 - Coverage matrix is the source of truth: if a requirement ID doesn't appear, something was missed.
 - Observability is embedded, not bolted on. Metrics go in the task that creates the thing being measured.

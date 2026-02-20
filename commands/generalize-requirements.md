@@ -49,6 +49,18 @@ Create a terminology mapping table covering ALL of these categories:
 - Privilege/permission name changes
 - Function/procedure name changes (stored procedures, API operation names)
 - Operator/license/vendor name removals (replace with "configurable" equivalents)
+- **Implementation/framework term changes**: Identify ALL language-specific, framework-specific, or library-specific terms and map them to language-agnostic equivalents. The test: someone implementing in Go, Java, TypeScript, or Rust should be able to read the generalized requirements without encountering concepts tied to a specific language or framework. Common mappings include:
+  - Web server/host names (e.g., "Kestrel host", "Express server", "Gin router") → "HTTP server" or "listener endpoint"
+  - ORM/data access concepts (e.g., "EF Core context", "DbContext", "Hibernate session") → "data access module"
+  - Request pipeline concepts (e.g., "middleware pipeline", "filter chain") → "request processing pipeline"
+  - Background execution (e.g., "hosted service", "goroutine", "Worker Service") → "background service" or "background task"
+  - Interface naming conventions (e.g., "IRepository", "IUnitOfWork") → "repository pattern", "unit of work pattern" (name the pattern, not the interface)
+  - DI/IoC concepts (e.g., "DI container with named registrations", "service provider") → remove or replace with "dependency injection" only if the concept itself is relevant
+  - Framework-specific configuration patterns (e.g., "Options pattern", "appsettings.json", "application.yml") → "application configuration" or remove if it's a pure implementation detail
+  - Framework names (e.g., "ASP.NET Core", "Spring Boot", "NestJS", "Rails") → remove; describe the capability instead (e.g., "ASP.NET Core Web API" → "REST API service")
+  - Language-specific type names (e.g., "Task\<T\>", "CompletableFuture", "Promise") → "async operation" or describe the behavior
+
+  **Judgment call — generalize vs. remove:** If a framework term describes a *capability* the system needs (e.g., "background service" for scheduled work), generalize it. If it describes *how* a specific framework delivers that capability (e.g., "Options pattern" for config binding), remove it — the requirement should state what configuration is needed, not how the framework loads it.
 
 | Original Term | Generalized Term | Notes |
 |---|---|---|
@@ -143,7 +155,12 @@ Use this document structure for each file:
 |---|---|---|
 | BR-XXX-NN | GBR-NN | |
 
-### Terminology Changes
+### Terminology Changes — Domain Terms
+
+| Original Term | Generalized Term | Notes |
+|---|---|---|
+
+### Terminology Changes — Implementation/Framework Terms
 
 | Original Term | Generalized Term | Notes |
 |---|---|---|
@@ -195,7 +212,12 @@ Use this document structure for each file:
 |---|---|---|
 | TR-XXX-NN | GTR-NN | |
 
-### Terminology Changes
+### Terminology Changes — Domain Terms
+
+| Original Term | Generalized Term | Notes |
+|---|---|---|
+
+### Terminology Changes — Implementation/Framework Terms
 
 | Original Term | Generalized Term | Notes |
 |---|---|---|

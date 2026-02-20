@@ -41,7 +41,7 @@ Read the "Traceability from Original Requirements" section (subsections "ID Mapp
 | BR-XXX-NN | GBR-NN |
 | TR-XXX-NN | GTR-NN |
 
-Include ALL categories of term changes: entity names, privilege names, enum values, procedure names, operator/vendor name removals.
+Include ALL categories of term changes: entity names, privilege names, enum values, procedure names, operator/vendor name removals, and implementation/framework term changes (from the "Terminology Changes — Implementation/Framework Terms" subsection).
 
 ### Phase 2: Transform the Flow Catalog
 
@@ -74,7 +74,7 @@ Before writing the output, verify:
 | Check | What to Verify |
 |-------|---------------|
 | No original IDs remain | No BR-* or TR-* references in the output (except in parenthetical "(original: ...)" notes if needed for traceability) |
-| No original-specific terms remain | No operator names, vendor names, or domain-specific jargon that was mapped in Phase 1 |
+| No original-specific terms remain | No operator names, vendor names, domain-specific jargon, or implementation/framework-specific terms that were mapped in Phase 1 |
 | ID references are valid | Every GBR-*/GTR-* ID referenced exists in the generalized requirements documents |
 | Coverage is complete | Every GBR-* requirement from the generalized business requirements appears in at least one flow's Requirements list in the Requirement Coverage section, and every GBR-*/GTR-* ID referenced within the generalized flow catalog exists in the generalized requirements documents. Requirements listed in the generalized requirements' "Excluded from This Document" or "Extracted to Separate Services" sections are exempt from coverage. |
 

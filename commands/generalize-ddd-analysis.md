@@ -38,6 +38,7 @@ Also include ALL categories of term changes found in the traceability appendices
 - Enum value changes
 - Entity/concept name changes
 - Operator/license/vendor name removals (replace with "configurable" equivalents)
+- Implementation/framework term changes (from the "Terminology Changes — Implementation/Framework Terms" subsection)
 
 ### Phase 2: Transform Each Section
 
@@ -47,7 +48,7 @@ Apply the terminology map to every section of the original DDD analysis. Preserv
 
 - **Ubiquitous Language** (MOST IMPORTANT): Replace every domain-specific term, update definitions, update ALL enum value lists. Remove platform-specific operator/license values (replace with "configurable" note). Add a note at the top: "This glossary uses platform-agnostic terminology. See [original DDD analysis](../ddd-analysis.md) for the codebase-specific terms."
 - **State Machines**: Update ALL diagrams, transition tables, and invariant descriptions using the master terminology map. If the service decomposition extracted a subsystem that owns a state machine, note the extraction and apply this rule: remove the subsystem's detailed tactical pattern entries (entities, aggregates, repositories) and replace with a single summary row noting the extraction. Preserve the subsystem's entry in the bounded contexts section with a cross-reference to the service decomposition document.
-- **Context Mapping**: Replace specific technology references where the generalized TRs use generic terms (e.g., "Debezium" → "CDC connector", "Kafka" → "message broker"). Keep pattern classifications unchanged (Customer-Supplier, ACL, etc.).
+- **Context Mapping**: Replace specific technology references using the implementation/framework terms from the master terminology map (e.g., framework-specific component names, library names, infrastructure product names → their language-agnostic equivalents). Keep pattern classifications unchanged (Customer-Supplier, ACL, etc.).
 - **All other sections** (Executive Summary, Bounded Contexts, Tactical Patterns, Architectural Assessment, Recommendations): Apply terminology substitutions throughout. Preserve all coupling assessments, alignment ratings, and recommendation types.
 
 ### Phase 3: Cross-Reference with Service Decomposition
@@ -64,7 +65,7 @@ If the file exists:
 Before writing the output, verify:
 1. Every privilege name in the generalized DDD analysis matches the privilege list in the generalized technical requirements' authorization section
 2. Every enum value matches the generalized business requirements
-3. No original-specific operator names, license names, or registry names remain in descriptive text (they may appear in parenthetical "original:" references)
+3. No original-specific operator names, license names, registry names, or implementation/framework-specific terms remain in descriptive text (they may appear in parenthetical "original:" references)
 4. State machine diagrams are consistent with the generalized requirements' state machine descriptions
 
 ## Output Format

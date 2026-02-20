@@ -66,6 +66,7 @@ Check for anti-patterns:
 3. **Distributed transactions**: If an operation requires atomic changes across two services, reconsider the boundary.
 4. **Shared database**: Two services should NOT share a database. If they need the same data, use events/sync.
 5. **Anemic services**: A service with very few requirements might not justify the operational overhead. Consider merging. (Skip this check if the analysis concluded a single-service architecture is appropriate.)
+6. **Framework-shaped boundaries**: Service boundaries must follow domain lines, not framework or infrastructure organizational patterns. Flag any proposed boundary that mirrors a framework-specific structure rather than a domain concept. Examples of bad splits: separating services along ORM context boundaries (e.g., one service per database context class), splitting "middleware" or "request pipeline" into its own service, creating a service boundary around a dependency injection module. The test: would this boundary make sense if the system were reimplemented in a different language/framework? If the boundary only exists because of how a framework organizes code, it's not a real service boundary.
 
 ### Phase 5: Implementation Order
 
@@ -127,6 +128,7 @@ Evaluate each pattern. Convention: `[x]` = confirmed absent (clean), `[ ] CONCER
 - [x] No distributed transactions required
 - [x] No shared databases
 - [x] No anemic services
+- [x] No framework-shaped boundaries
 ```
 
 ## Important

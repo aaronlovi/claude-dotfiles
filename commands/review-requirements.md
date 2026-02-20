@@ -30,9 +30,9 @@ Create a team called `review-requirements` with 3 teammates:
 
 | Teammate | Checks | Rationale |
 |---|---|---|
-| `coverage-reviewer` | 1 (Requirement ID Integrity), 2 (Coverage Matrix), 4 (Phase Assignment), 9 (Flow Catalog Consistency) | All about requirement ↔ task/flow traceability |
-| `dependency-reviewer` | 3 (Dependency Graph), 8 (Implementation Ordering) | Both validate dependency structure |
-| `consistency-reviewer` | 5 (Metric Naming), 6 (Cross-Service References), 7 (DDD Alignment) | Cross-cutting consistency checks |
+| `coverage-reviewer` | 1 (Requirement ID Integrity), 2 (Coverage Matrix), 4 (Phase Assignment), 11 (Flow Catalog Consistency) | All about requirement ↔ task/flow traceability |
+| `dependency-reviewer` | 3 (Dependency Graph), 8 (Implementation Ordering), 10 (Task Independent Testability) | Dependency structure and task granularity |
+| `consistency-reviewer` | 5 (Metric Naming), 6 (Cross-Service References), 7 (DDD Alignment), 9 (Framework-Agnostic Language) | Cross-cutting consistency checks |
 
 ### Coordination
 
@@ -139,7 +139,31 @@ Verify the implementation order makes sense:
 - Are there tasks that could be parallelized but are shown as sequential? (Flag as optimization opportunity.)
 - Is the critical path reasonable?
 
-### Check 9: Flow Catalog Consistency (if a flow catalog exists)
+### Check 9: Framework-Agnostic Language
+
+Scan ALL generalized documents (requirements, Jira tasks, service decomposition, flow catalog) for implementation/framework-specific terms that should have been generalized. Flag any occurrence of:
+- **Language-specific class/interface names**: Interface naming conventions like `IFoo`/`IBar`, generic type syntax like `Task<T>` or `List<T>`, language-specific base classes.
+- **Framework component names**: e.g., "Kestrel", "EF Core", "DbContext", "Hibernate", "Express", "Spring Boot", "NestJS", "Rails", "ASP.NET Core".
+- **Framework-specific patterns**: e.g., "Options pattern", "middleware pipeline" (when referring to a specific framework's middleware), "hosted service" (when referring to a specific framework's background task model), "DI container with named registrations".
+- **Library-specific APIs**: e.g., "JwtBearerHandler", "IServiceCollection", "DbSet<T>", "ApplicationBuilder".
+
+For each flagged term, recommend the language-agnostic equivalent (using the mapping conventions from `/generalize-requirements` Phase 2). This check catches terms that slipped through `/generalize-requirements` or were reintroduced during `/generate-jira-tasks`.
+
+**Do not flag:**
+- Generic industry terms that happen to also be framework names (e.g., "middleware" as a general architectural concept is fine; "ASP.NET Core middleware pipeline" is not).
+- Pattern names that are language-agnostic (e.g., "repository pattern", "unit of work pattern", "event sourcing").
+
+### Check 10: Task Independent Testability
+
+For each Jira task, verify that its acceptance criteria — especially integration and functional tests — can pass using only the deliverables from that task and its declared dependencies (the "Blocked by" chain). Flag tasks where:
+
+- **The task produces empty infrastructure**: It creates database schemas, data access modules, or repository layers, but the entities or seed data that would make them testable are in a separate downstream task. Integration tests against empty structures are not meaningful.
+- **The task produces inert abstractions**: It defines interfaces/contracts and registration mechanisms, but the first concrete implementation is in a different task. There is nothing to test beyond compilation.
+- **The task produces wiring without behavior**: It sets up request pipelines, routing, or middleware, but the first endpoint or handler that exercises the pipeline is in another task.
+
+For each flagged task, recommend merging it with the first downstream task that populates or exercises it, creating the smallest unit that produces testable behavior.
+
+### Check 11: Flow Catalog Consistency (if a flow catalog exists)
 
 If a flow catalog exists in the requirements directory, verify:
 - All requirement IDs in the flow catalog's Requirement Coverage section exist in the requirements documents.
@@ -172,7 +196,7 @@ After reporting ALL findings, apply fixes in a single pass in this order:
 1. ID/numbering issues (Check 1)
 2. Coverage matrix gaps (Check 2)
 3. Dependency graph inconsistencies (Check 3)
-4. Remaining issues (Checks 4-9)
+4. Remaining issues (Checks 4-11)
 
 If no issues are found, report: "All documents are consistent. No issues found." and stop.
 
@@ -182,7 +206,7 @@ The convergence loop uses Task tool subagents regardless of whether agent teams 
 
 After applying fixes, the documents must be verified to confirm no new inconsistencies were introduced. Fixes often cascade — renumbering an ID breaks coverage matrices, fixing a dependency graph misaligns a summary table, etc. A single pass is rarely enough.
 
-**Do NOT re-run all 9 checks in the current context.** Each verification pass reads all documents from scratch, which rapidly exhausts the context window. Instead, use fresh subagents for verification:
+**Do NOT re-run all 11 checks in the current context.** Each verification pass reads all documents from scratch, which rapidly exhausts the context window. Instead, use fresh subagents for verification:
 
 ### Verification Procedure
 
@@ -190,9 +214,9 @@ After the initial review + fix pass:
 
 1. **Spawn a verification subagent** using the Task tool (`general-purpose` subagent). Give it:
    - The list of all document file paths
-   - The full text of all 9 checks (copy from the Process section above)
+   - The full text of all 11 checks (copy from the Process section above)
    - The output format
-   - These instructions: "Read all documents. Run all 9 checks. For verification passes 2+, prioritize Checks 1-3 (IDs, coverage, dependencies) which are most likely to drift from fixes; only run Checks 4-9 if Checks 1-3 are clean. If issues are found, report ALL findings in the standard format (Issue N: description, File, Location, Problem, Fix) and respond with `STATUS: ISSUES_FOUND` and the findings list. Do NOT apply fixes — only report them. If no issues are found, respond with `STATUS: CLEAN`."
+   - These instructions: "Read all documents. Run all 11 checks. For verification passes 2+, prioritize Checks 1-3 (IDs, coverage, dependencies) which are most likely to drift from fixes; only run Checks 4-11 if Checks 1-3 are clean. If issues are found, report ALL findings in the standard format (Issue N: description, File, Location, Problem, Fix) and respond with `STATUS: ISSUES_FOUND` and the findings list. Do NOT apply fixes — only report them. If no issues are found, respond with `STATUS: CLEAN`."
 
 2. **Check the subagent's response:**
    - `STATUS: CLEAN` → convergence reached. Write final findings to the review-findings file. Report: "Review complete. Converged after N passes."
