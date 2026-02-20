@@ -279,6 +279,10 @@ For each Jira task, copy and evaluate:
 (Apply the checklist to one representative task from the service, showing which items trigger and what acceptance criteria to add)
 ```
 
+## Self-Review
+
+After producing the output artifacts, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine all artifacts until stable (max 5 passes). This command produces multiple files — use Task tool subagents for verification passes 2+ as described in the protocol's Context Window Management section.
+
 ## Important
 
 - Use `{SVC}-{###}` as the task ID pattern (e.g., `IAM-001` for Identity & Access Management). The abbreviation should match the service name from the decomposition document.

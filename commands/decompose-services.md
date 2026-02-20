@@ -131,6 +131,10 @@ Evaluate each pattern. Convention: `[x]` = confirmed absent (clean), `[ ] CONCER
 - [x] No framework-shaped boundaries
 ````
 
+## Self-Review
+
+After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+
 ## Important
 
 - Fewer services is usually better. Don't split for the sake of splitting.

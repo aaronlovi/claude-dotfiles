@@ -142,6 +142,10 @@ graph LR
 (Use Mermaid flowchart/graph syntax to show how data flows through the system)
 ```
 
+## Self-Review
+
+After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+
 ## Important
 
 - Do NOT try to understand all business logic in this phase. The reading order is a MAP, not a summary.

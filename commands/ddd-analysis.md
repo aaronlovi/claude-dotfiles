@@ -274,6 +274,10 @@ Create the `docs/` directory if it doesn't exist, then write the output to `docs
 (What, why, code example)
 ```
 
+## Self-Review
+
+After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+
 ## Important
 
 - This analysis must be THOROUGH. Read every enum, every stored procedure name, every proto file. The ubiquitous language section is the foundation — if you miss terms here, downstream analysis suffers.

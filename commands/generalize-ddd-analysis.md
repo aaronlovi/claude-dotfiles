@@ -77,6 +77,10 @@ The document must include:
 2. The same section structure as the original DDD analysis
 3. An Appendix: Terminology Changes Applied — listing every substitution made, for traceability
 
+## Self-Review
+
+After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+
 ## Important
 
 - **Do NOT modify the original** `docs/ddd-analysis.md`. It is a historical record of the codebase.

@@ -224,6 +224,10 @@ Use this document structure for each file:
 |---|---|---|
 ```
 
+## Self-Review
+
+After producing the output artifacts, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine all artifacts until stable (max 5 passes). This command produces multiple files — use Task tool subagents for verification passes 2+ as described in the protocol's Context Window Management section.
+
 ## Important
 
 - The generalized requirements must be IMPLEMENTABLE. Don't over-abstract to the point of being meaningless.

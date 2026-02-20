@@ -179,6 +179,10 @@ Write to `docs/requirements/flow-catalog.md`:
 | {any orphaned requirements} | {why not covered} |
 ```
 
+## Self-Review
+
+After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+
 ## Important
 
 - This document is for **human readers**, not Claude. Write clear, concise prose in flow descriptions. Avoid jargon that requires reading the requirements to understand.

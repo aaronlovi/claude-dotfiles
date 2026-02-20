@@ -102,6 +102,10 @@ The document must use the same structure as the original flow catalog (see `/ext
 | TR-XXX-NN | GTR-NN |
 ```
 
+## Self-Review
+
+After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+
 ## Important
 
 - **Do NOT modify the original** `docs/requirements/flow-catalog.md`. It is a historical record of the project-specific flows.
