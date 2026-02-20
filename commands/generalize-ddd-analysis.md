@@ -23,7 +23,7 @@ $ARGUMENTS should be the path to the generalized requirements directory (e.g., `
 
 ### Phase 1: Build the Terminology Map
 
-Read the "Traceability from Original Requirements" section (subsections "ID Mapping" and "Terminology Changes") from BOTH generalized requirements documents. Compile a single master mapping:
+Read the "Traceability from Original Requirements" section (subsections "ID Mapping", "Terminology Changes — Domain Terms", and "Terminology Changes — Implementation/Framework Terms") from BOTH generalized requirements documents. Compile a single master mapping:
 
 | Original Term | Generalized Term | Source |
 |---|---|---|
@@ -38,7 +38,7 @@ Also include ALL categories of term changes found in the traceability appendices
 - Enum value changes
 - Entity/concept name changes
 - Operator/license/vendor name removals (replace with "configurable" equivalents)
-- Implementation/framework term changes (from the "Terminology Changes — Implementation/Framework Terms" subsection)
+- Implementation/framework term changes (from the "Terminology Changes — Implementation/Framework Terms" subsection). For terms mapped to "removed — implementation detail", delete the term from the generalized text rather than substituting. For terms mapped to a language-agnostic equivalent, substitute as with domain terms.
 
 ### Phase 2: Transform Each Section
 

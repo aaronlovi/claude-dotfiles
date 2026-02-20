@@ -79,7 +79,7 @@ Determine which service should be built first:
 
 Write to `docs/generalized-requirements/service-decomposition.md`:
 
-```
+````
 # Service Decomposition
 
 ## Table of Contents
@@ -129,7 +129,7 @@ Evaluate each pattern. Convention: `[x]` = confirmed absent (clean), `[ ] CONCER
 - [x] No shared databases
 - [x] No anemic services
 - [x] No framework-shaped boundaries
-```
+````
 
 ## Important
 

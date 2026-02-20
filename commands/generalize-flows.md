@@ -25,7 +25,7 @@ $ARGUMENTS should be the path to the generalized requirements directory (e.g., `
 
 ### Phase 1: Build the Terminology Map
 
-Read the "Traceability from Original Requirements" section (subsections "ID Mapping" and "Terminology Changes") from BOTH generalized requirements documents. Compile two mapping tables:
+Read the "Traceability from Original Requirements" section (subsections "ID Mapping", "Terminology Changes — Domain Terms", and "Terminology Changes — Implementation/Framework Terms") from BOTH generalized requirements documents. Compile two mapping tables:
 
 **Terminology map:**
 
@@ -41,7 +41,7 @@ Read the "Traceability from Original Requirements" section (subsections "ID Mapp
 | BR-XXX-NN | GBR-NN |
 | TR-XXX-NN | GTR-NN |
 
-Include ALL categories of term changes: entity names, privilege names, enum values, procedure names, operator/vendor name removals, and implementation/framework term changes (from the "Terminology Changes — Implementation/Framework Terms" subsection).
+Include ALL categories of term changes: entity names, privilege names, enum values, procedure names, operator/vendor name removals, and implementation/framework term changes.
 
 ### Phase 2: Transform the Flow Catalog
 

@@ -153,7 +153,7 @@ For each flagged term, recommend the language-agnostic equivalent (using the map
 - Generic industry terms that happen to also be framework names (e.g., "middleware" as a general architectural concept is fine; "ASP.NET Core middleware pipeline" is not).
 - Pattern names that are language-agnostic (e.g., "repository pattern", "unit of work pattern", "event sourcing").
 
-### Check 10: Task Independent Testability
+### Check 10: Task-Independent Testability
 
 For each Jira task, verify that its acceptance criteria — especially integration and functional tests — can pass using only the deliverables from that task and its declared dependencies (the "Blocked by" chain). Flag tasks where:
 
@@ -161,7 +161,7 @@ For each Jira task, verify that its acceptance criteria — especially integrati
 - **The task produces inert abstractions**: It defines interfaces/contracts and registration mechanisms, but the first concrete implementation is in a different task. There is nothing to test beyond compilation.
 - **The task produces wiring without behavior**: It sets up request pipelines, routing, or middleware, but the first endpoint or handler that exercises the pipeline is in another task.
 
-For each flagged task, recommend merging it with the first downstream task that populates or exercises it, creating the smallest unit that produces testable behavior.
+For each flagged task, recommend merging it with the first downstream task that populates or exercises it, creating the smallest unit that produces testable behavior. (This mirrors the validation in `/generate-jira-tasks` Phase 6.5 — this check catches cases that slipped through initial generation or were introduced by edits.)
 
 ### Check 11: Flow Catalog Consistency (if a flow catalog exists)
 
