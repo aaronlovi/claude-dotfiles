@@ -40,7 +40,7 @@ Execute a prompt from `.prompts/`.
 
 ### Task Prompts (`.prompts/NNN-name.md`)
 
-Task prompts contain checkpoints as numbered subsections under `## Checkpoints` (see the template in `/create-prompt`). Execute each checkpoint using the checkpoint workflow:
+Task prompts contain checkpoints as numbered subsections under `## Checkpoints` (see the template in `/create-prompt`). Execute each checkpoint using the **manual** checkpoint workflow:
 1. Implement checkpoint (code + tests)
 2. Stop, report what was done
 3. Wait for user: review, compile, test
@@ -89,15 +89,18 @@ Research prompts are single-pass (no checkpoint workflow, no progress tracking):
 **Second run** (plan.md exists):
 1. Read plan.md. If plan.md exists but is empty or contains no checkpoints, treat it as a first run (regenerate the plan).
 2. Check the metadata Status field — if `failed`, ask user whether to regenerate the plan. If `partial`, inform the user and ask whether to proceed or re-run the plan phase.
-3. Execute checkpoints using the checkpoint workflow
-4. After each checkpoint: stop, report, wait for user confirmation
-5. After all checkpoints: "Implementation complete."
+3. Execute checkpoints using the **automated** checkpoint workflow (see `/prompt-rules`):
+   - Implement each checkpoint, then self-verify (review, compile, test) in a loop (max 5 iterations)
+   - On convergence: commit with "Checkpoint {id}" and update progress.md
+   - On failure to converge: stop and report remaining issues to the user
+4. After all checkpoints: "Implementation complete."
 
-## Checkpoint Workflow (CRITICAL)
+## Checkpoint Workflows
 
-Follow the checkpoint workflow defined in `/prompt-rules`. Key points:
-- Execute ONE CHECKPOINT AT A TIME
-- Never batch. Never skip review. Never proceed without confirmation. Never leave tests for a later checkpoint.
+Follow the checkpoint workflows defined in `/prompt-rules`:
+- **Task prompts** use the **manual** checkpoint workflow: implement, stop, wait for user review/compile/test confirmation.
+- **Plan prompts** use the **automated** checkpoint workflow: implement, self-verify (review + compile + test loop, max 5 iterations), commit, proceed.
+- In both workflows: execute ONE CHECKPOINT AT A TIME. Never batch. Never leave tests for a later checkpoint.
 - Exception: a checkpoint that is purely non-code work (documentation, configuration) does not need unit tests.
 
 ## Progress Tracking
@@ -114,7 +117,7 @@ Also check the metadata Status field in plan.md or research.md (if applicable). 
 
 If progress.md is inconsistent with the plan (e.g., references checkpoints that don't exist, or shows out-of-order completion), report the inconsistency and ask the user how to proceed.
 
-After user confirms each checkpoint, update progress.md:
+After each checkpoint completes (user confirms for task prompts; self-verify converges for plan prompts), update progress.md:
 ```markdown
 # Progress
 
@@ -128,6 +131,8 @@ After user confirms each checkpoint, update progress.md:
 ```
 
 ## Reporting
+
+### Task Prompts (Manual Workflow)
 
 After checkpoint:
 ```
@@ -144,6 +149,31 @@ After user confirms:
 Checkpoint N confirmed. Progress saved.
 Proceeding to checkpoint N+1.
 ```
+
+### Plan Prompts (Automated Workflow)
+
+After each checkpoint converges:
+```
+Checkpoint N of M complete:
+- Implemented: [summary]
+- Files: [list]
+- Tests: [list]
+- Compiled: clean
+- Tests: all passing
+- Committed: [hash]
+Proceeding to checkpoint N+1.
+```
+
+If self-verify does not converge:
+```
+Checkpoint N of M — did not converge after 5 iterations.
+Remaining issues:
+- [list of unresolved compile errors, test failures, or review findings]
+
+Please review and advise how to proceed.
+```
+
+### Common
 
 When resuming:
 ```

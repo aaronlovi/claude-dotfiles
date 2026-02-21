@@ -53,9 +53,15 @@ If unsure, start with `/create-meta-prompt` — the research phase will clarify 
 Derive from task: lowercase, hyphenate, drop stopwords (a, an, the, of, for, to).
 Example: "Refactor the payment system" → `refactor-payment-system`
 
-## Checkpoint Workflow (CRITICAL)
+## Checkpoint Workflows
 
-During implementation, execute ONE CHECKPOINT AT A TIME:
+During implementation, execute ONE CHECKPOINT AT A TIME. Never batch. Never leave tests for a later checkpoint.
+
+Exception: a checkpoint that is purely non-code work (documentation, configuration) does not need unit tests.
+
+### Manual Checkpoint Workflow
+
+Used by **task prompts**. Requires user confirmation at each checkpoint:
 
 ```
 1. Check for existing progress.md - skip completed checkpoints
@@ -75,9 +81,36 @@ During implementation, execute ONE CHECKPOINT AT A TIME:
 9. Only then proceed to next checkpoint
 ```
 
-**Never batch. Never skip review. Never proceed without confirmation. Never leave tests for a later checkpoint.**
+**Never skip review. Never proceed without user confirmation.**
 
-Exception: a checkpoint that is purely non-code work (documentation, configuration) does not need unit tests.
+### Automated Checkpoint Workflow
+
+Used by **plan prompts**. Claude performs review, compilation, testing, and commit autonomously:
+
+```
+1. Check for existing progress.md - skip completed checkpoints
+2. Implement checkpoint (code + unit tests for this checkpoint's code)
+   - Unit tests are written IN the same checkpoint as the code they test
+   - Never defer tests to a later checkpoint
+3. Self-verify loop (max 5 iterations):
+   a. Re-read all files modified/created in this checkpoint from disk
+   b. Review for: missing imports, type errors, obvious bugs, style violations,
+      incomplete implementations, tests that don't match the code
+   c. Compile the project
+   d. Run ALL tests (existing + new)
+   e. If ANY issues (review findings, compile errors, test failures):
+      fix them all, then go back to step (a)
+   f. If CLEAN (no review issues, compiles, all tests pass):
+      exit the loop
+4. Commit: git add the modified/created files and commit with message
+   "Checkpoint {id}" (matching the checkpoint number from the plan,
+   e.g., "Checkpoint 1", "Checkpoint 2.1")
+5. Update progress.md with completed checkpoint and commit hash
+6. Report what was done, then proceed to next checkpoint
+```
+
+If the self-verify loop does not converge after 5 iterations, stop and report
+the remaining issues to the user. Do NOT proceed to the next checkpoint.
 
 ## Metadata Block
 
@@ -127,7 +160,7 @@ Before starting, check if progress.md exists:
 - If yes, read it and resume from first incomplete checkpoint
 - If no, create it with all checkpoints marked pending
 
-Update after each checkpoint is confirmed by user.
+Update after each checkpoint completes (user confirms for manual workflow; self-verify converges for automated workflow).
 
 ## Naming Conventions
 
