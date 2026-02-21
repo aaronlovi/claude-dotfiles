@@ -134,19 +134,16 @@ No separate "do" prompt is needed. The plan.md contains the checkpoints. User im
 
 Progress will be tracked in `.prompts/{slug}-plan/progress.md` during execution. If interrupted, running the same command again will resume from the last incomplete checkpoint.
 
-## Self-Review (iterate up to 5 times)
+## Self-Review
 
-After writing the prompt, iterate up to 5 times:
-1. Re-read the file you just wrote
-2. Check against these criteria:
-   - **Consistency**: Context paths match actual project structure; cross-references between research/plan use correct filenames and slugs; output instructions match what `/run-prompt` expects
-   - **Correctness**: Research questions are specific and answerable by reading code (not vague "what do you think about X"); plan instructions reference research.md correctly; checkpoint structure follows the template
-   - **Information density**: Enough detail for an LLM to execute without guessing, but no redundant restatements or filler. Research questions that overlap should be merged. Explore sections should list concrete paths, not "relevant files."
-   - **Prompt-type-specific checks**:
-     - If generating a research prompt: verify all Questions are specific and answerable by reading code; verify Explore section lists concrete file paths, not "relevant files."
-     - If generating a plan prompt: verify it references the correct `research.md` path; verify the slug in all paths is consistent; verify checkpoint structure instructions match the `/prompt-rules` template.
-3. If changes needed — edit the file in place and continue the loop
-4. If no changes needed — stop iterating
+After writing the prompt, follow the self-review convergence protocol in `commands/self-review-protocol.md` (re-read from disk using the Read tool, iterate until no changes needed, max 5 passes, track convergence). Evaluate against these criteria:
+
+- **Consistency**: Context paths match actual project structure; cross-references between research/plan use correct filenames and slugs; output instructions match what `/run-prompt` expects
+- **Correctness**: Research questions are specific and answerable by reading code (not vague "what do you think about X"); plan instructions reference research.md correctly; checkpoint structure follows the template
+- **Information density**: Enough detail for an LLM to execute without guessing, but no redundant restatements or filler. Research questions that overlap should be merged. Explore sections should list concrete paths, not "relevant files."
+- **Prompt-type-specific checks**:
+  - If generating a research prompt: verify all Questions are specific and answerable by reading code; verify Explore section lists concrete file paths, not "relevant files."
+  - If generating a plan prompt: verify it references the correct `research.md` path; verify the slug in all paths is consistent; verify checkpoint structure instructions match the `/prompt-rules` template.
 
 ## After Saving
 

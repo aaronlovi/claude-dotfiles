@@ -1,6 +1,6 @@
 # Self-Review Convergence Protocol
 
-This protocol is referenced by pipeline commands (Stages 1-6) to iteratively refine artifacts until stable. It is NOT a standalone command. Stage 7 (`review-requirements`) has its own convergence loop for multi-document cross-consistency review — this protocol does not apply to it.
+This protocol is referenced by pipeline commands (Stages 1-6) and prompt skills (`/create-prompt`, `/create-meta-prompt`, `/run-prompt`) to iteratively refine artifacts until stable. It is NOT a standalone command. Stage 7 (`review-requirements`) has its own convergence loop for multi-document cross-consistency review — this protocol does not apply to it.
 
 ## Procedure
 
@@ -8,7 +8,7 @@ After producing the output artifact, iterate until idempotent (no changes needed
 
 1. **Re-read your output from disk** using the Read tool. Do NOT rely on what you remember writing — the file on disk is the source of truth.
 
-2. **Evaluate against all quality criteria** defined in the command's Process section and Important section. Check for:
+2. **Evaluate against all quality criteria** defined in the calling command's or skill's self-review section. Check for:
    - Internal consistency (do tables match prose? do IDs cross-reference correctly? does the table of contents match the headings?)
    - Completeness (did you cover everything the command requires?)
    - Formatting (does the output match the specified template?)
