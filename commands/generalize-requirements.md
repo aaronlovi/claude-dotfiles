@@ -49,7 +49,7 @@ Create a terminology mapping table covering ALL of these categories:
 - Privilege/permission name changes
 - Function/procedure name changes (stored procedures, API operation names)
 - Operator/license/vendor name removals (replace with "configurable" equivalents)
-- **Implementation/framework term changes**: Identify ALL language-specific, framework-specific, or library-specific terms and map them to language-agnostic equivalents. The test: someone implementing in Go, Java, TypeScript, or Rust should be able to read the generalized requirements without encountering concepts tied to a specific language or framework. Common mappings include:
+- **Implementation/framework term changes**: Identify ALL language-specific, framework-specific, or library-specific terms and map them to language-agnostic equivalents. The test: someone implementing in Go, Java, TypeScript, Elixir, or Rust should be able to read the generalized requirements without encountering concepts tied to a specific language or framework. Common mappings include:
   - Web server/host names (e.g., "Kestrel host", "Express server", "Gin router") → "HTTP server" or "listener endpoint"
   - ORM/data access concepts (e.g., "EF Core context", "DbContext", "Hibernate session") → "data access module"
   - Request pipeline concepts (e.g., "middleware pipeline", "filter chain") → "request processing pipeline"
@@ -59,8 +59,19 @@ Create a terminology mapping table covering ALL of these categories:
   - Framework-specific configuration patterns (e.g., "Options pattern", "appsettings.json", "application.yml") → "application configuration" or remove if it's a pure implementation detail
   - Framework names (e.g., "ASP.NET Core", "Spring Boot", "NestJS", "Rails") → remove; describe the capability instead (e.g., "ASP.NET Core Web API" → "REST API service")
   - Language-specific type names (e.g., "Task\<T\>", "CompletableFuture", "Promise") → "async operation" or describe the behavior
+  - Naming conventions (e.g., PascalCase property names like "ConfigurationId", "I"-prefixed interfaces) → use neutral casing or describe the concept
 
   **Judgment call — generalize vs. remove:** If a framework term describes a *capability* the system needs (e.g., "background service" for scheduled work), generalize it. If it describes *how* a specific framework delivers that capability (e.g., "Options pattern" for config binding), remove it — the requirement should state what configuration is needed, not how the framework loads it.
+
+- **Framework-specific architectural patterns**: Beyond individual terms, identify entire *requirements or architectural patterns* that are specific to a particular runtime or framework. The test: could a developer implementing this in a language with a fundamentally different runtime model (e.g., BEAM/Elixir, JVM/Java, Go) implement and test this requirement as written, without translating a framework-specific pattern? If not, the requirement must be rewritten to express the underlying *need* it serves, or removed if the need is runtime-specific. Common patterns to catch:
+  - **Manual memory/GC management** (e.g., "monitor memory consumption and trigger garbage collection at threshold") → Remove or replace with "the system must handle memory efficiently under sustained load." Manual GC is a .NET-specific workaround; BEAM, JVM, and Go runtimes manage GC differently and don't expose this as a configurable application concern.
+  - **Framework-specific hosting models** (e.g., "dual-host architecture with shared cancellation", "service host + metrics host running concurrently linked by cancellation token") → Replace with the capability: "health check and metrics endpoints must be available on a configurable port." How the runtime hosts these endpoints (separate listeners, management port, same server with different routes) is an implementation choice.
+  - **Runtime-specific concurrency primitives** (e.g., "shared cancellation", "cancellation token propagation") → Replace with the behavior: "if a critical subsystem fails, the process must terminate cleanly." The cancellation mechanism varies by runtime (supervision trees in Elixir, thread interruption in Java, context cancellation in Go).
+  - **Framework-specific configuration layering** (e.g., "configuration loads in order: base settings file, environment-specific file, env vars, external provider with poll interval") → Replace with the need: "configuration must support environment-specific overrides and optional external configuration sources." The specific layering order and file naming conventions are framework-determined.
+  - **DI container implementation details** (e.g., "DI container with named/keyed registrations", "service provider with scoped lifetime") → Remove entirely. DI container features are implementation details; some languages (Elixir, Go) don't use DI containers at all. State the dependency relationships in the architecture, not how they're wired.
+  - **Language-specific serialization setup** (e.g., "configure JSON serialization for all API responses") → Remove if the requirement is just "use JSON." Every modern web framework serializes JSON by default. Only keep if there are specific serialization rules (e.g., "dates must be ISO 8601", "enums serialize as strings").
+
+  **Judgment call — pattern vs. need:** Ask: "What problem does this architectural pattern solve?" Write the requirement in terms of that problem. If the problem itself is runtime-specific (e.g., .NET GC latency spikes), the requirement should be removed — the implementing team will address runtime-specific concerns as part of their technology choice.
 
 | Original Term | Generalized Term | Notes |
 |---|---|---|

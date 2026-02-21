@@ -141,17 +141,35 @@ Verify the implementation order makes sense:
 
 ### Check 9: Framework-Agnostic Language
 
+This check operates at two levels: **terminology** (individual terms) and **architecture** (entire requirements or acceptance criteria that encode framework-specific patterns).
+
+#### 9a: Terminology Scan
+
 Scan ALL generalized documents (requirements, Jira tasks, service decomposition, flow catalog) for implementation/framework-specific terms that should have been generalized. Flag any occurrence of:
 - **Language-specific class/interface names**: Interface naming conventions like `IFoo`/`IBar`, generic type syntax like `Task<T>` or `List<T>`, language-specific base classes.
 - **Framework component names**: e.g., "Kestrel", "EF Core", "DbContext", "Hibernate", "Express", "Spring Boot", "NestJS", "Rails", "ASP.NET Core".
 - **Framework-specific patterns**: e.g., "Options pattern", "middleware pipeline" (when referring to a specific framework's middleware), "hosted service" (when referring to a specific framework's background task model), "DI container with named registrations".
 - **Library-specific APIs**: e.g., "JwtBearerHandler", "IServiceCollection", "DbSet<T>", "ApplicationBuilder".
+- **Language-specific naming conventions**: PascalCase property names (e.g., "ConfigurationId") that reflect a specific language's style, "I"-prefixed interface names.
+- **Runtime-specific concurrency terms**: e.g., "shared cancellation", "cancellation token", "goroutine pool" — terms that name a specific runtime's concurrency mechanism rather than the behavior it provides.
 
 For each flagged term, recommend the language-agnostic equivalent (using the mapping conventions from `/generalize-requirements` Phase 2). This check catches terms that slipped through `/generalize-requirements` or were reintroduced during `/generate-jira-tasks`.
 
 **Do not flag:**
 - Generic industry terms that happen to also be framework names (e.g., "middleware" as a general architectural concept is fine; "ASP.NET Core middleware pipeline" is not).
 - Pattern names that are language-agnostic (e.g., "repository pattern", "unit of work pattern", "event sourcing").
+
+#### 9b: Architectural Pattern Scan
+
+For each requirement and each Jira task acceptance criterion, apply this test: *"Could a developer implement and test this as-written in Elixir (BEAM), Java (JVM), and Go — not just in the original source language?"* If the answer is no, the requirement encodes a framework-specific architectural pattern regardless of whether it uses framework-specific keywords. Flag it and recommend rewriting in terms of the underlying need.
+
+Common patterns to flag:
+- **Manual memory/GC management** (e.g., "trigger garbage collection when memory exceeds threshold"). This is a .NET-specific workaround; BEAM does per-process GC, JVM GC is not application-controlled, Go has its own GC strategy. Recommend: remove, or replace with a performance SLA if the underlying concern is latency under load.
+- **Framework-specific hosting models** (e.g., "dual-host architecture with service host and metrics host linked by shared cancellation"). Recommend: "health check and metrics endpoints available on a configurable port" — leave hosting architecture to the implementation team.
+- **Prescriptive configuration layering** (e.g., "configuration loads in order: base file, environment-specific file, seed data files, env vars, external provider with poll interval"). This is the exact ASP.NET Core ConfigurationBuilder chain. Recommend: "configuration supports environment-specific overrides and optional external configuration sources."
+- **DI container implementation details** (e.g., "DI container with named/keyed registrations", "scoped service lifetime"). Not all languages use DI containers (Elixir and Go typically do not). Recommend: remove — describe the dependency architecture, not the wiring mechanism.
+- **Serialization as a task** (e.g., "configure JSON serialization for all API responses"). Every modern framework serializes JSON by default. Recommend: remove unless there are specific serialization rules (date formats, enum handling, null behavior).
+- **Runtime-specific background processing** (e.g., "memory monitoring background service at configurable interval"). If the underlying need is runtime-specific (GC tuning), remove it. If the need is universal (e.g., "periodic cleanup of expired tokens"), keep the need but remove the runtime-specific mechanism.
 
 ### Check 10: Task-Independent Testability
 
