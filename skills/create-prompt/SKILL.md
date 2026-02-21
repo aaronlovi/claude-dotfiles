@@ -88,10 +88,19 @@ ls .prompts/[0-9][0-9][0-9]-*.md 2>/dev/null | sort | tail -1
 ```
 Increment highest number, or start at `001`. Always zero-pad to 3 digits. The glob `[0-9][0-9][0-9]-*.md` ensures only numbered task prompts are matched, excluding progress files and non-numeric filenames.
 
-## Self-Review
+## Self-Review (Mandatory Convergence Loop)
 
-After writing the prompt, follow the self-review convergence protocol in `commands/self-review-protocol.md` (re-read from disk using the Read tool, iterate until no changes needed, max 5 passes, track convergence). Evaluate against these criteria:
+After writing the prompt, you MUST execute this iterative loop — do NOT skip it or do a single mental check:
 
+**For each pass (max 5):**
+1. **Re-read the prompt from disk** using the Read tool. Do NOT rely on what you remember writing — the file on disk is the source of truth.
+2. **Evaluate against every criterion below.** Note all issues found.
+3. **If ANY issues found:** fix them all in the file, then go back to step 1 (re-read from disk again).
+4. **If NO issues found:** the prompt is stable. Append `<!-- Self-review: converged after N passes -->` to the file and stop.
+
+Batch all fixes from one pass before re-reading. If still changing after 5 passes, stop and note remaining issues under `## Self-Review Notes`.
+
+**Criteria:**
 - **Consistency**: Checkpoint descriptions use parallel structure; context section matches actual project files; verification commands match CLAUDE.md
 - **Correctness**: Checkpoints are in a buildable order (no forward references); each checkpoint's tests cover its own code; no dedicated testing checkpoint at the end
 - **Information density**: Enough detail for an LLM to implement without guessing, but no redundant restatements or filler. If a checkpoint says "implement X" but doesn't say *how* or *where*, add specifics. If it over-explains something obvious, trim it.

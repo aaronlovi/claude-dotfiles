@@ -134,10 +134,19 @@ No separate "do" prompt is needed. The plan.md contains the checkpoints. User im
 
 Progress will be tracked in `.prompts/{slug}-plan/progress.md` during execution. If interrupted, running the same command again will resume from the last incomplete checkpoint.
 
-## Self-Review
+## Self-Review (Mandatory Convergence Loop)
 
-After writing the prompt, follow the self-review convergence protocol in `commands/self-review-protocol.md` (re-read from disk using the Read tool, iterate until no changes needed, max 5 passes, track convergence). Evaluate against these criteria:
+After writing the prompt, you MUST execute this iterative loop — do NOT skip it or do a single mental check:
 
+**For each pass (max 5):**
+1. **Re-read the prompt from disk** using the Read tool. Do NOT rely on what you remember writing — the file on disk is the source of truth.
+2. **Evaluate against every criterion below.** Note all issues found.
+3. **If ANY issues found:** fix them all in the file, then go back to step 1 (re-read from disk again).
+4. **If NO issues found:** the prompt is stable. Append `<!-- Self-review: converged after N passes -->` to the file and stop.
+
+Batch all fixes from one pass before re-reading. If still changing after 5 passes, stop and note remaining issues under `## Self-Review Notes`.
+
+**Criteria:**
 - **Consistency**: Context paths match actual project structure; cross-references between research/plan use correct filenames and slugs; output instructions match what `/run-prompt` expects
 - **Correctness**: Research questions are specific and answerable by reading code (not vague "what do you think about X"); plan instructions reference research.md correctly; checkpoint structure follows the template
 - **Information density**: Enough detail for an LLM to execute without guessing, but no redundant restatements or filler. Research questions that overlap should be merged. Explore sections should list concrete paths, not "relevant files."

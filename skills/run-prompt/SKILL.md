@@ -54,7 +54,14 @@ Research prompts are single-pass (no checkpoint workflow, no progress tracking):
 2. Explore the codebase (read files, search for patterns)
 3. Answer the research questions
 4. Write findings to `.prompts/{slug}-research/research.md` with metadata block (Status, Dependencies, Open Questions, Assumptions)
-5. **Self-review the research output**: Follow the self-review convergence protocol in `commands/self-review-protocol.md` (re-read from disk using the Read tool, iterate until no changes needed, max 5 passes, track convergence). Evaluate against these criteria:
+5. **Self-review the research output (mandatory convergence loop)** — do NOT skip this or do a single mental check. Execute this iterative loop:
+   **For each pass (max 5):**
+   a. **Re-read research.md from disk** using the Read tool. Do NOT rely on what you remember writing.
+   b. **Evaluate against every criterion below.** Note all issues found.
+   c. **If ANY issues found:** fix them all, then go back to step (a).
+   d. **If NO issues found:** append `<!-- Self-review: converged after N passes -->` and stop.
+   Batch all fixes from one pass before re-reading.
+   **Criteria:**
    - **Consistency**: Findings don't contradict each other; file paths referenced actually exist; metadata Status accurately reflects completeness
    - **Correctness**: Questions from the prompt are all addressed (or explicitly marked unanswered in Open Questions); for each file path or code pattern cited in the findings, re-read the file to verify it exists and matches what was described — remove or correct any references to files or symbols that don't exist
    - **Information density**: Enough detail to write a plan from, but no padding. If an answer is "there is no existing pattern for X," say that directly — don't speculate. If findings are thin, set Status to `partial` and list gaps in Open Questions.
@@ -66,7 +73,14 @@ Research prompts are single-pass (no checkpoint workflow, no progress tracking):
 1. Read research.md (always present for plans created via `/create-meta-prompt`; may be absent for manually created plan prompts). If the prompt references research.md but the file doesn't exist, inform the user: "This plan references research at `.prompts/{slug}-research/research.md` which doesn't exist. Run `/create-meta-prompt [task]` to create and execute the research phase first."
 2. Design checkpoints per the prompt instructions
 3. Write `.prompts/{slug}-plan/plan.md` with metadata block
-4. **Self-review the plan**: Follow the self-review convergence protocol in `commands/self-review-protocol.md` (re-read from disk using the Read tool, iterate until no changes needed, max 5 passes, track convergence). Evaluate against these criteria:
+4. **Self-review the plan (mandatory convergence loop)** — do NOT skip this or do a single mental check. Execute this iterative loop:
+   **For each pass (max 5):**
+   a. **Re-read plan.md from disk** using the Read tool. Do NOT rely on what you remember writing.
+   b. **Evaluate against every criterion below.** Note all issues found.
+   c. **If ANY issues found:** fix them all, then go back to step (a).
+   d. **If NO issues found:** append `<!-- Self-review: converged after N passes -->` and stop.
+   Batch all fixes from one pass before re-reading.
+   **Criteria:**
    - **Consistency**: Checkpoints use parallel structure; file paths match what research.md identified; no checkpoint references files or APIs that haven't been introduced in an earlier checkpoint
    - **Correctness**: Checkpoints are in buildable order (no forward dependencies); each checkpoint includes tests for its own code; research findings are accurately reflected (not contradicted or ignored)
    - **Information density**: Each checkpoint has enough specifics (which files, which functions, what behavior) for an LLM to implement without re-reading research. No redundant restatements across checkpoints. If research identified risks or constraints, they're addressed in the relevant checkpoint — not in a generic preamble.
