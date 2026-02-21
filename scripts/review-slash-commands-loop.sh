@@ -69,7 +69,13 @@ while [ "$iteration" -lt "$MAX_ITERATIONS" ]; do
     # Run Claude in print mode (non-interactive)
     # stdout is sparse in -p mode (tool use not echoed), so we capture
     # Claude's text response separately and focus on diffs for the log.
-    claude_output=$(claude -p "$PROMPT" --allowedTools 'Read,Write,Edit,Glob,Grep,Task' 2>&1) || true
+    # Separate stderr so errors are visible; capture stdout for the log.
+    claude_stderr=$(mktemp)
+    claude_output=$(claude -p "$PROMPT" --allowedTools 'Read,Write,Edit,Glob,Grep,Task' 2>"$claude_stderr") || true
+    if [ -s "$claude_stderr" ]; then
+        echo "  [stderr] $(cat "$claude_stderr")"
+    fi
+    rm -f "$claude_stderr"
 
     after=$(get_checksum)
 

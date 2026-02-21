@@ -85,7 +85,7 @@ Across all coverage matrices in all Jira task documents:
 ### Check 3: Dependency Graph Consistency
 
 For each Jira task document, verify THREE representations match:
-1. **Dependency graph** (ASCII art): visual parent-child relationships
+1. **Dependency graph** (Mermaid `graph TD` diagram): visual parent-child relationships
 2. **Task header** ("Blocked by:" field): explicit dependency list
 3. **Summary table** ("Blocked By" column): tabular dependency list
 

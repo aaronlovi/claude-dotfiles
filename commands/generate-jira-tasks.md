@@ -245,14 +245,69 @@ Write one file per service: `docs/generalized-requirements/jira-tasks.{service-n
 |---|---|---|
 ```
 
-Also write: `docs/generalized-requirements/technical-requirements.observability-and-testing.md`
-- Include a `## Table of Contents` section after the document title, listing all major sections.
-- Use `OBS-{###}` as the ID prefix for observability requirements and `K6-{###}` for load test scenarios (zero-padded 3-digit numbers starting from 001, e.g., OBS-001, K6-001). These are new requirement IDs (like GBR/GTR) defined in this document and referenced from task acceptance criteria. They are validated by `/review-requirements` Check 1.
-- Cross-cutting observability standards (RED metrics patterns, structured logging, tracing)
-- Dashboard requirements (operational, cross-service, business metrics)
-- Alert tier definitions and minimum alert coverage
-- Load test scenario definitions with SLA targets
-- Per-service metrics appendix (table with columns: Metric Name, Type (counter/histogram/gauge), Labels, Defined In (task ID), OBS-* Reference)
+Also write:
+
+### `docs/generalized-requirements/technical-requirements.observability-and-testing.md`
+
+Use `OBS-{###}` as the ID prefix for observability requirements and `K6-{###}` for load test scenarios (zero-padded 3-digit numbers starting from 001, e.g., OBS-001, K6-001). These are new requirement IDs (like GBR/GTR) defined in this document and referenced from task acceptance criteria. They are validated by `/review-requirements` Check 1.
+
+```
+# Observability & Testing Requirements: {Service Name}
+
+## Table of Contents
+
+## Cross-Cutting Standards
+
+### RED Metrics
+{Standard RED metrics pattern: request rate, error rate, duration for all API endpoints}
+
+### Structured Logging
+{Log format, required fields, correlation ID propagation}
+
+### Distributed Tracing
+{Trace context propagation, span naming conventions}
+
+## Observability Requirements
+
+### OBS-001: {Short title}
+
+**Requirement:** {Clear requirement statement}
+
+**Applies to:** {Task IDs or "All API endpoints"}
+
+### OBS-002: {Short title}
+
+...
+
+## Dashboard Requirements
+
+| Dashboard | Purpose | Key Panels |
+|-----------|---------|------------|
+| Operational | System health | Error rates, latency percentiles, throughput |
+| Business Metrics | Domain KPIs | {Domain-specific counters and rates} |
+
+## Alert Definitions
+
+| Tier | Condition | Threshold | Response |
+|------|-----------|-----------|----------|
+
+## Load Test Scenarios
+
+### K6-001: {Short title}
+
+**Scenario:** {What the test exercises}
+**SLA:** {Target metric, e.g., p99 < 200ms at 100 RPS}
+**Endpoints:** {Which endpoints are exercised}
+
+### K6-002: {Short title}
+
+...
+
+## Per-Service Metrics Appendix
+
+| Metric Name | Type | Labels | Defined In | OBS-* Reference |
+|-------------|------|--------|------------|-----------------|
+```
 
 Also write: `docs/generalized-requirements/jira-checklist.observability.md` with this structure:
 ```
