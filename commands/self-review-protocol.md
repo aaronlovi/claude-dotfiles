@@ -35,10 +35,18 @@ For commands that support Agent Teams mode: the lead performs self-review after 
 
 ## Tracking
 
-After convergence, append a brief log to the end of the artifact:
+**If converged:** append a brief log to the end of the artifact:
 
 ```
 <!-- Self-review: converged after N passes -->
 ```
 
 This is an HTML comment so it doesn't affect document rendering but provides traceability.
+
+**If NOT converged after 5 passes:** add a visible section at the bottom of the artifact listing the remaining issues:
+
+```markdown
+## Self-Review Notes
+- [remaining issue 1]
+- [remaining issue 2]
+```
