@@ -1,7 +1,7 @@
 ---
 name: run-prompt
 description: Execute prompts from .prompts/
-allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion
+allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion, Task
 argument-hint: [target]
 user-invocable: true
 ---
@@ -89,11 +89,12 @@ Research prompts are single-pass (no checkpoint workflow, no progress tracking):
 **Second run** (plan.md exists):
 1. Read plan.md. If plan.md exists but is empty or contains no checkpoints, treat it as a first run (regenerate the plan).
 2. Check the metadata Status field — if `failed`, ask user whether to regenerate the plan. If `partial`, inform the user and ask whether to proceed or re-run the plan phase.
-3. Execute checkpoints using the **automated** checkpoint workflow (see `/prompt-rules`):
+3. **Resolve the pre-implementation base**: if progress.md already contains a `Pre-implementation base: <hash>` line, read the `<base-ref>` from it. Otherwise (first run), run `git rev-parse HEAD`, store the result as `<base-ref>`, and write it to progress.md as `Pre-implementation base: <hash>` along with the `## Finalization` checklist (see Progress Tracking). If progress.md exists but has no base-ref (legacy format), fall back to `origin/main`.
+4. Execute checkpoints using the **automated** checkpoint workflow (see `/prompt-rules`):
    - Implement each checkpoint, then self-verify (review, compile, test) in a loop (max 5 iterations)
    - On convergence: commit with "Checkpoint {id}" and update progress.md
    - On failure to converge: stop and report remaining issues to the user
-4. After all checkpoints: "Implementation complete."
+5. After all checkpoints complete: proceed to the **Finalization Phase**.
 
 ## Checkpoint Workflows
 
@@ -110,8 +111,8 @@ Track progress in:
 - Plan prompts: `.prompts/{slug}-plan/progress.md`
 
 Before starting, check if progress.md exists:
-- If yes, read it. If all checkpoints are already marked complete, report: "All checkpoints already complete. Nothing to do. Progress: .prompts/[path]/progress.md" and stop. Otherwise, resume from first incomplete checkpoint.
-- If no, create it with all checkpoints marked pending
+- If yes, read it. If all checkpoints are marked complete AND finalization is marked complete (plan prompts only), report: "All checkpoints and finalization already complete. Nothing to do. Progress: .prompts/[path]/progress.md" and stop. If all checkpoints are complete but finalization is pending (or not tracked), resume at the finalization phase. Otherwise, resume from first incomplete checkpoint.
+- If no, create it with all checkpoints marked pending. For plan prompts, also include the `Pre-implementation base` and `## Finalization` checklist (see format below).
 
 Also check the metadata Status field in plan.md or research.md (if applicable). If Status is `partial` or `failed`, inform the user and ask whether to proceed with the current plan or re-run the previous phase first. If research findings are insufficient to create a meaningful plan, recommend re-running research with refined questions rather than proceeding. If plan.md has Status `failed`, ask the user if they want to regenerate the plan (treat as a first run).
 
@@ -129,6 +130,24 @@ After each checkpoint completes (user confirms for task prompts; self-verify con
 - [ ] Checkpoint 2: [description]
   - (pending)
 ```
+
+For plan prompts, progress.md also tracks the pre-implementation base and finalization status:
+```markdown
+# Progress
+
+Pre-implementation base: <hash>
+
+- [x] Checkpoint 1: [description]
+  - Files: [list]
+  - Tests: [list]
+  - Committed: [hash]
+
+## Finalization
+- [ ] Squash
+- [ ] Review-and-fix
+- [ ] Wrap-up
+```
+Update each finalization sub-step as it completes during the finalization phase.
 
 ## Reporting
 
@@ -182,8 +201,121 @@ Found existing progress: checkpoints 1-2 complete.
 Resuming from checkpoint 3.
 ```
 
-After all done:
+After all done (task prompts):
 ```
 All checkpoints complete. Implementation finished.
+Progress: .prompts/[path]/progress.md
+```
+
+After all done (plan prompts): proceed to the Finalization Phase — do not report "Implementation finished" until finalization completes.
+
+## Finalization Phase (Plan Prompts Only)
+
+After all checkpoints complete in a plan prompt execution, execute this finalization phase before reporting completion. This phase squashes checkpoint commits, reviews the full changeset, and performs a final quality sweep.
+
+**Resuming**: if resuming an interrupted finalization, read the `## Finalization` checklist in progress.md and skip sub-steps already marked `[x]`. Start from the first incomplete sub-step.
+
+### Step 1: Squash Checkpoint Commits
+
+Squash all checkpoint commits into a single descriptive commit:
+
+```bash
+git reset --soft <base-ref>
+git commit -m "<descriptive message>"
+```
+
+The commit message should:
+- Summarize the feature or changes implemented (not just "Checkpoint 1, 2, 3")
+- Be derived from the plan's objective and the checkpoints completed
+- Follow the project's commit message conventions (from CLAUDE.md if specified)
+- Use conventional format: a short subject line (under 72 chars), blank line, then bullet points summarizing key changes
+
+Update progress.md: mark `Squash` complete.
+
+### Step 2: Review-and-Fix Loop (max 5 iterations)
+
+Apply the same review criteria as `/review-squashed-changes`, but fix findings instead of just reporting them.
+
+**For each pass (max 5):**
+
+a. **Re-read all changed files from disk** and review the changeset using `git diff <base-ref>...HEAD`. Do NOT rely on what you remember from previous passes.
+   - **Production code** (diff hunks): Correctness, security, API contract, edge cases, resource management, naming/clarity
+   - **Test files** (full-file via `git show HEAD:<file>`): Correctness of assertions, DRY, data-driven test opportunities, refactoring opportunities
+   - **Non-code files** (light pass): Hardcoded secrets, wrong values, contradictions
+   - **Cross-cutting**: Consistency between code and tests, completeness, architectural fit
+
+   If there are more than 5 changed files, use Task tool subagents to parallelize the review (group into batches of 3-5 related files per `general-purpose` subagent, then merge findings).
+
+   Do NOT flag: style preferences (formatting, whitespace, import order) — assume a formatter handles this. Do NOT flag pre-existing issues in unchanged code.
+
+b. **Note all findings.**
+
+c. **If ANY findings:** fix all issues in the source files, then compile and run all tests. If compile errors or test failures result from fixes, fix those too. Then go back to step (a).
+
+d. **If NO findings:** converged — stop.
+
+Batch all fixes from one pass before re-reading.
+
+After convergence (or max 5 passes), if any fixes were made, amend the squashed commit to include them:
+
+```bash
+git add -A
+git commit --amend --no-edit
+```
+
+Update progress.md: mark `Review-and-fix` complete.
+
+If not converged after 5 passes, report remaining issues to the user before proceeding to Step 3: Wrap-Up-and-Fix Loop.
+
+### Step 3: Wrap-Up-and-Fix Loop (max 5 iterations)
+
+Apply the same checks as `/wrap-up`, fixing issues directly.
+
+**For each pass (max 5):**
+
+a. **Re-read all changed files from disk** and evaluate the changeset (`git diff <base-ref>...HEAD`) against all wrap-up checks. Do NOT rely on what you remember from previous passes.
+   - **System-level configuration**: New env vars, config files, DI registrations, migrations, external integrations — documented? sensible defaults? secrets externalized?
+   - **Input validation on controllers**: Every user-supplied parameter validated (nullability, type, range, length, format)? Proper HTTP status codes? Injection protection? Collection/string size limits?
+   - **Documentation freshness**: README, OpenAPI/Swagger specs, player-facing API docs, admin API docs — do they reflect the changes?
+   - **Missing metrics**: New endpoints, background jobs, external service calls, business operations — instrumented?
+
+b. **Note all issues found.**
+
+c. **If ANY issues found:** fix them all in the files, then compile and run all tests. If fixes introduce new issues, fix those too. Then go back to step (a).
+
+d. **If NO issues found:** converged — stop.
+
+Batch all fixes from one pass before re-reading.
+
+After convergence (or max 5 passes), if any fixes were made, amend the squashed commit:
+
+```bash
+git add -A
+git commit --amend --no-edit
+```
+
+Update progress.md: mark `Wrap-up` complete.
+
+If not converged after 5 passes, report remaining issues to the user.
+
+### Finalization Report
+
+After the finalization phase completes, report:
+
+```
+## Finalization Summary
+
+**Squashed commit**: <short SHA> — <commit message first line>
+**Files in changeset**: N
+
+### Review-and-Fix
+- Converged after N passes [or: Did not converge — N issues remain]
+- Fixes applied: [summary of changes made, or "None needed"]
+
+### Wrap-Up
+- Converged after N passes [or: Did not converge — N issues remain]
+- Fixes applied: [summary of changes made, or "None needed"]
+
+Implementation complete.
 Progress: .prompts/[path]/progress.md
 ```

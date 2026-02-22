@@ -112,6 +112,10 @@ Used by **plan prompts**. Claude performs review, compilation, testing, and comm
 If the self-verify loop does not converge after 5 iterations, stop and report
 the remaining issues to the user. Do NOT proceed to the next checkpoint.
 
+After all checkpoints complete, `/run-prompt` executes a **Finalization Phase**
+that squashes checkpoint commits, reviews the full changeset, and performs a
+wrap-up sweep. See `/run-prompt` for details.
+
 ## Metadata Block
 
 Append to research.md, plan.md:
@@ -156,6 +160,8 @@ Format:
   - (pending)
 ```
 
+For plan prompts, progress.md also includes a pre-implementation base ref and a finalization checklist. See `/run-prompt` for the extended format.
+
 Before starting, check if progress.md exists:
 - If yes, read it and resume from first incomplete checkpoint
 - If no, create it with all checkpoints marked pending
@@ -168,7 +174,7 @@ Avoid naming task prompts with slugs that end in `-research` or `-plan` to preve
 
 ## Cleanup
 
-A prompt is considered complete when all its checkpoints are marked `[x]` in progress.md. Completed prompts can be deleted or moved to `.prompts/archive/` at the user's discretion. The prompt system does not automatically clean up old workflows.
+A prompt is considered complete when all its checkpoints are marked `[x]` in progress.md. For plan prompts, the finalization checklist must also be fully marked `[x]` (see `/run-prompt`). Completed prompts can be deleted or moved to `.prompts/archive/` at the user's discretion. The prompt system does not automatically clean up old workflows.
 
 ## Resuming Incomplete Work
 
@@ -178,3 +184,4 @@ If a workflow was interrupted:
 3. If progress.md is inconsistent with the plan (e.g., references checkpoints that don't exist, or shows out-of-order completion), report the inconsistency and ask the user how to proceed
 4. If Status is `partial` or `failed`, inform the user and ask whether to proceed or re-run the previous phase
 5. Continue from the first incomplete checkpoint
+6. For plan prompts: if all checkpoints are complete but the finalization checklist has incomplete items, resume the finalization phase from the first incomplete sub-step (see `/run-prompt`)
