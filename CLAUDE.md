@@ -1,5 +1,7 @@
 # Global Preferences
 
+- Obsidian vault location: `/mnt/c/Users/aaron/ObsidianVaults/DevNotes`
+
 - When creating diagrams in markdown files, always use Mermaid diagram syntax instead of ASCII art.
 - Markdown documents should use numbered breadcrumb-style section headings that include parent context. Number sections sequentially at each level (1., 2., etc. for top-level; 2.1., 2.2. for sub-sections; 2.3.1. for sub-sub-sections). Prefix each sub-heading with its parent heading names separated by " - " for breadcrumb navigation. Examples:
   - `## 1. The Big Picture`
