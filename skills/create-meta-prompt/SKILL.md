@@ -158,4 +158,4 @@ Batch all fixes from one pass before re-reading. If still changing after 5 passe
 
 Report what was created and what's next:
 - After research prompt: "Created research prompt. Run with `/run-prompt {slug}-research`, then run `/create-meta-prompt [same task]` again to generate the plan phase."
-- After plan prompt: "Created plan prompt. Run `/run-prompt {slug}-plan` to generate the plan. Once the plan is generated, run the same command again to implement it checkpoint by checkpoint."
+- After plan prompt: "Created plan prompt. Run `/run-prompt {slug}-plan` to generate the plan. Once the plan is generated, run the same command again to implement it (checkpoints run automatically with self-verify, compile, test, and commit)."
