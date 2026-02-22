@@ -139,7 +139,7 @@ After checkpoint:
 Checkpoint N of M complete:
 - Implemented: [summary]
 - Files: [list]
-- Tests: [list]
+- Tests added: [list]
 
 Please review, compile, and run tests. Let me know the results.
 ```
@@ -157,9 +157,10 @@ After each checkpoint converges:
 Checkpoint N of M complete:
 - Implemented: [summary]
 - Files: [list]
-- Tests: [list]
+- Tests added: [list]
 - Compiled: clean
-- Tests: all passing
+- Test run: all passing
+- Self-verify: converged after N iterations
 - Committed: [hash]
 Proceeding to checkpoint N+1.
 ```
