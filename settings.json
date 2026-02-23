@@ -78,22 +78,31 @@
   },
   "preferredNotifChannel": "terminal_bell",
   "hooks": {
-    "Notification": [
+    "Stop": [
       {
-        "matcher": "idle_prompt",
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -c \"[System.Media.SystemSounds]::Asterisk.Play()\""
+            "command": "powershell.exe -Command \"[console]::beep(800,300)\""
+          },
+          {
+            "type": "command",
+            "command": "powershell.exe -Command \"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > \\$null; \\$t = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02); \\$n = \\$t.GetElementsByTagName('text'); \\$n.Item(0).AppendChild(\\$t.CreateTextNode('Claude Code')) > \\$null; \\$n.Item(1).AppendChild(\\$t.CreateTextNode('Task complete')) > \\$null; [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Claude Code').Show([Windows.UI.Notifications.ToastNotification]::new(\\$t))\""
           }
         ]
-      },
+      }
+    ],
+    "Notification": [
       {
         "matcher": "permission_prompt",
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -c \"[System.Media.SystemSounds]::Exclamation.Play()\""
+            "command": "powershell.exe -Command \"[console]::beep(1000,150); Start-Sleep -Milliseconds 100; [console]::beep(1000,150)\""
+          },
+          {
+            "type": "command",
+            "command": "powershell.exe -Command \"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > \\$null; \\$t = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02); \\$n = \\$t.GetElementsByTagName('text'); \\$n.Item(0).AppendChild(\\$t.CreateTextNode('Claude Code')) > \\$null; \\$n.Item(1).AppendChild(\\$t.CreateTextNode('Permission needed')) > \\$null; [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Claude Code').Show([Windows.UI.Notifications.ToastNotification]::new(\\$t))\""
           }
         ]
       }
