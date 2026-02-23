@@ -70,8 +70,8 @@
     "Bash(docker ps:*)",
     "Bash(docker images:*)",
     "Bash(docker logs:*)",
-    "WebFetch",
-    "WebSearch"
+    "WebFetch(*)",
+    "WebSearch(*)"
   ],
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
