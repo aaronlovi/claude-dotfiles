@@ -213,7 +213,7 @@ After all done (plan prompts): proceed to the Finalization Phase — do not repo
 
 After all checkpoints complete in a plan prompt execution, execute this finalization phase before reporting completion. This phase squashes checkpoint commits, reviews the full changeset, and performs a final quality sweep.
 
-**Resuming**: if resuming an interrupted finalization, read the `## Finalization` checklist in progress.md and skip sub-steps already marked `[x]`. Start from the first incomplete sub-step.
+**Resuming**: if resuming an interrupted finalization, read progress.md in full — extract the `Pre-implementation base: <hash>` line (needed for `git reset --soft <base-ref>` in Step 1) and read the `## Finalization` checklist to identify which sub-steps are already marked `[x]`. Start from the first incomplete sub-step.
 
 ### Step 1: Squash Checkpoint Commits
 

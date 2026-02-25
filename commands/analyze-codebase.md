@@ -72,7 +72,7 @@ Read the key structural files to understand the architecture:
 
 ### Phase 3: Domain Model Discovery
 
-**Skip this phase if a DDD analysis already exists** — instead, during Phase 4 (Reading Order Construction), for each file add a "DDD Reference" annotation linking to the relevant DDD analysis section (e.g., "See Tactical Patterns > Entities > User" or "See State Machines > Account Status").
+**Skip this phase if a DDD analysis already exists** — instead, during Phase 4 (Reading Order Construction), for each file include a DDD reference bullet point within "Key Things to Notice" linking to the relevant DDD analysis section (e.g., "DDD Reference: See Tactical Patterns > Entities > User" or "DDD Reference: See State Machines > Account Status").
 
 If no DDD analysis exists:
 1. **Entities and aggregates**: Find domain models, database entities, DTOs.
@@ -91,14 +91,13 @@ Produce a reading order that follows these principles:
 For each file in the reading order, provide:
 - **File path**
 - **Why read this now** (1-2 sentences)
-- **Key things to notice** (bullet points: patterns, important fields, non-obvious behavior)
-- **Relationships** (what other files this connects to)
+- **Key things to notice** (bullet points covering: patterns, important fields, non-obvious behavior, relationships to other files, and DDD references if a DDD analysis was used)
 
 ## Output Format
 
 Create the output directory (`docs/codebase-analysis/`) if it does not exist, then write to `docs/codebase-analysis/reading-order.md` with this structure:
 
-```
+````
 # Codebase Reading Order: {Service Name}
 
 ## Architectural Overview
@@ -140,11 +139,11 @@ graph LR
 ```
 
 (Use Mermaid flowchart/graph syntax to show how data flows through the system)
-```
+````
 
 ## Self-Review
 
-After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+After producing the output artifact, follow the self-review convergence protocol in `~/.claude/commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
 
 ## Important
 

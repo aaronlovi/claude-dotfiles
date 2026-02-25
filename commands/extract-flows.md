@@ -181,7 +181,7 @@ Write to `docs/requirements/flow-catalog.md`:
 
 ## Self-Review
 
-After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+After producing the output artifact, follow the self-review convergence protocol in `~/.claude/commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
 
 ## Important
 
@@ -191,7 +191,7 @@ After producing the output artifact, follow the self-review convergence protocol
 - Focus on **major flows** (see scoping guidance in Phase 1). Consolidate simple CRUD into summary flows. The goal is a navigable overview, not an exhaustive specification.
 - **Error paths must come from requirements**, not imagination. Only document error conditions explicitly stated in business requirements, technical requirements, or DDD analysis state machines.
 - Use **project-specific terminology** (BR-*/TR-* IDs, domain-specific terms as they appear in the requirements). The flow catalog will be generalized in a separate stage (`/generalize-flows`).
-- The **Requirement Coverage** section is critical — it validates that the flow catalog accounts for all requirements. Orphaned requirements signal missing flows or overlooked system behaviors.
+- The **Requirement Coverage** section is critical — it validates that the flow catalog accounts for all requirements. Orphaned requirements signal missing flows or overlooked system behaviors. TR-* requirements must appear in either "Covered Requirements" or "System-Wide Constraints" — never in "Uncovered Requirements". Only BR-* requirements may appear in "Uncovered Requirements" (when no flow covers them).
 - Pre/postconditions in the Overview table should be concrete and testable (e.g., "User exists and is in ACTIVE state"), not vague (e.g., "System is ready").
 - This command produces a single synthesized output and does not support Agent Teams parallelization.
 - **Next step**: Run `/generalize-requirements docs/requirements/` to produce platform-agnostic requirements (Stage 4). See `/pipeline` for the full sequence of subsequent stages.

@@ -27,7 +27,12 @@ $ARGUMENTS should be the path to generalized requirements (e.g., `docs/generaliz
 
 ### Phase 1: Identify Bounded Contexts
 
-Read all requirements and identify natural groupings. If a DDD analysis is available (see Prerequisites), use its bounded context section as the starting point rather than identifying groupings from scratch — validate existing context boundaries against the requirements.
+Read all requirements and identify natural groupings. Check the following primary inputs first, then validate against the analysis criteria below:
+
+- **If a DDD analysis is available** (see Prerequisites): use its bounded context section as the starting point — it already identifies context boundaries and their rationale. Validate those boundaries against the requirements rather than discovering them from scratch.
+- **If the generalized requirements contain "Extracted to Separate Services" sections** (in either `business-requirements.md` or `technical-requirements.md`): treat those tagged requirements as the primary extraction candidates. The generalization phase already evaluated which requirements represent distinct bounded contexts — use that work as the starting point rather than re-deriving it.
+
+Then validate using these analysis criteria:
 
 1. **Data ownership**: Which requirements operate on the same core data? Group them.
 2. **Transactional boundaries**: Which operations must be atomic together? They belong in the same service.
@@ -133,7 +138,7 @@ Evaluate each pattern. Convention: `[x]` = confirmed absent (clean), `[ ] CONCER
 
 ## Self-Review
 
-After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+After producing the output artifact, follow the self-review convergence protocol in `~/.claude/commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
 
 ## Important
 

@@ -75,11 +75,21 @@ Write to `docs/generalized-requirements/ddd-analysis.md`.
 The document must include:
 1. A header note: "Generalized from [original DDD analysis](../ddd-analysis.md) using terminology mappings from [business requirements](./business-requirements.md) and [technical requirements](./technical-requirements.md)."
 2. The same section structure as the original DDD analysis
-3. An Appendix: Terminology Changes Applied — listing every substitution made, for traceability
+3. An appendix at the end using this structure:
+
+```
+## Appendix: Terminology Changes Applied
+
+| Original Term | Generalized Term |
+|---|---|
+| ... | ... |
+```
+
+(No ID Mapping appendix is needed — the DDD analysis does not carry requirement IDs.)
 
 ## Self-Review
 
-After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+After producing the output artifact, follow the self-review convergence protocol in `~/.claude/commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
 
 ## Important
 

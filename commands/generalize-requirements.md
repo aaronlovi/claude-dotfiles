@@ -191,14 +191,14 @@ Use this document structure for each file:
 
 ## {Technical Area 1}
 
-### GTR-NN: {Short title}
+### GTR-01: {Short title}
 
 **Requirement:** {Clear requirement statement}
 
 **Phase:** {N}
 **Dependencies:** {Other GTR/GBR IDs, or "None"}
 
-### GTR-NN: {Short title}
+### GTR-02: {Short title}
 
 ...
 
@@ -237,7 +237,7 @@ Use this document structure for each file:
 
 ## Self-Review
 
-After producing the output artifacts, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine all artifacts until stable (max 5 passes). This command produces multiple files — use Task tool subagents for verification passes 2+ as described in the protocol's Context Window Management section.
+After producing the output artifacts, follow the self-review convergence protocol in `~/.claude/commands/self-review-protocol.md` to iteratively refine all artifacts until stable (max 5 passes). This command produces multiple files — use Task tool subagents for verification passes 2+ as described in the protocol's Context Window Management section.
 
 ## Important
 

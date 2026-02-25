@@ -40,7 +40,7 @@ Create a team called `extract-requirements` with 2 teammates:
 1. **Lead reads prerequisite artifacts** (DDD analysis, reading order) and shares paths with teammates.
 2. **Spawn both teammates** in parallel. Each receives: the reading order (or codebase path), their specific extraction focus, the corresponding output format template (business requirements format for business-extractor, technical requirements format for technical-extractor), and the DDD analysis context (if present).
 3. **Teammates report draft requirements** back to the lead.
-4. **Lead executes Phase 4** (Cross-Reference): merges, deduplicates, ensures every business requirement maps to at least one technical requirement, assigns phases, and resolves ID numbering.
+4. **Lead merges teammate outputs**: deduplicates requirements that appear in both submissions, resolves any ID numbering conflicts (renumber so all IDs are sequential within each document), and verifies preliminary phase assignments are consistent. Then executes **Phase 4** (Cross-Reference): ensures every business requirement maps to at least one technical requirement or is self-contained, identifies gaps (code with no clear business justification), and identifies implicit requirements enforced only by database constraints or stored procedures.
 5. **Lead writes final output** to `docs/requirements/business-requirements.md` and `docs/requirements/technical-requirements.md`.
 
 Each teammate should be spawned as a `general-purpose` subagent with a clear prompt listing: the reading order (or codebase path), their specific extraction focus, the corresponding output format template (business requirements format for business-extractor, technical requirements format for technical-extractor), and the DDD analysis context (if present). Teammates only read files and report findings — the lead handles all output writing. If a teammate fails or returns incomplete results, the lead should complete that phase's work directly rather than re-spawning.
@@ -173,7 +173,7 @@ Create `docs/requirements/` if it doesn't exist, then write two files:
 
 ## Self-Review
 
-After producing the output artifacts, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine all artifacts until stable (max 5 passes). This command produces multiple files — use Task tool subagents for verification passes 2+ as described in the protocol's Context Window Management section.
+After producing the output artifacts, follow the self-review convergence protocol in `~/.claude/commands/self-review-protocol.md` to iteratively refine all artifacts until stable (max 5 passes). This command produces multiple files — use Task tool subagents for verification passes 2+ as described in the protocol's Context Window Management section.
 
 ## Important
 
@@ -183,4 +183,4 @@ After producing the output artifacts, follow the self-review convergence protoco
 - Include edge cases you find in the code — they represent hard-won lessons.
 - If business logic lives in stored procedures or database functions, those are PRIMARY SOURCES. Read them carefully.
 - Flag any contradictions between code behavior and comments/documentation.
-- **Next step**: Run `/extract-flows docs/requirements/` to catalog major system flows (optional but recommended), then `/generalize-requirements docs/requirements/` to produce platform-agnostic requirements for downstream pipeline stages.
+- **Next step**: Run `/extract-flows docs/requirements/` to catalog major system flows (optional but recommended before Stage 4). If skipping flows, proceed directly to `/generalize-requirements docs/requirements/`.
