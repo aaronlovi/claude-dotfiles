@@ -1,6 +1,6 @@
 # Self-Review Convergence Protocol
 
-This protocol is referenced by pipeline commands (Stages 1-6) and prompt skills (`/create-prompt`, `/create-meta-prompt`, `/run-prompt`) to iteratively refine artifacts until stable. It is NOT a standalone command. Stage 7 (`review-requirements`) has its own convergence loop for multi-document cross-consistency review — this protocol does not apply to it.
+This protocol is referenced by pipeline commands (Stages 1-6) to iteratively refine artifacts until stable. It is NOT a standalone command. Stage 7 (`review-requirements`) has its own convergence loop for multi-document cross-consistency review — this protocol does not apply to it. Prompt skills (`/create-prompt`, `/create-meta-prompt`, `/run-prompt`) follow equivalent inline loops and do not reference this file.
 
 ## Procedure
 

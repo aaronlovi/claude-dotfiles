@@ -276,7 +276,7 @@ Create the `docs/` directory if it doesn't exist, then write the output to `docs
 
 ## Self-Review
 
-After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+After producing the output artifact, follow the self-review convergence protocol in `~/.claude/commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
 
 ## Important
 

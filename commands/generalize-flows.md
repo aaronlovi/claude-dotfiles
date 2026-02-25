@@ -73,7 +73,7 @@ Before writing the output, verify:
 
 | Check | What to Verify |
 |-------|---------------|
-| No original IDs remain | No BR-* or TR-* references in the output (except in parenthetical "(original: ...)" notes if needed for traceability) |
+| No original IDs remain | No BR-* or TR-* references in the output (except in the Appendix: ID Mapping table, or in parenthetical "(original: ...)" notes if needed for traceability) |
 | No original-specific terms remain | No operator names, vendor names, domain-specific jargon, or implementation/framework-specific terms that were mapped in Phase 1 |
 | ID references are valid | Every GBR-*/GTR-* ID referenced exists in the generalized requirements documents |
 | Coverage is complete | Every GBR-* requirement from the generalized business requirements appears in at least one flow's Requirements list in the Requirement Coverage section, and every GBR-*/GTR-* ID referenced within the generalized flow catalog exists in the generalized requirements documents. Requirements listed in the generalized requirements' "Excluded from This Document" or "Extracted to Separate Services" sections are exempt from coverage. |
@@ -104,7 +104,7 @@ The document must use the same structure as the original flow catalog (see `/ext
 
 ## Self-Review
 
-After producing the output artifact, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
+After producing the output artifact, follow the self-review convergence protocol in `~/.claude/commands/self-review-protocol.md` to iteratively refine the artifact until stable (max 5 passes).
 
 ## Important
 

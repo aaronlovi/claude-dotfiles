@@ -99,16 +99,18 @@ Also check:
 ### Check 4: Phase Assignment Consistency
 
 - Requirements in business/technical documents have phase assignments.
-- Jira tasks have phase assignments.
+- Jira tasks have phase assignments. A task's phase is determined by the `## Phase N:` section heading it appears under in the task file — the section heading is authoritative.
 - The Jira task's phase assignment is authoritative (it reflects full dependency analysis). If a requirement's phase differs from its covering task's phase, update the requirement's phase to match the task, not vice versa.
 - Flag any requirement whose phase doesn't match its covering task's phase.
+- Also verify that the Summary Table's Phase column matches the section heading (`## Phase N:`) for each task. If they disagree, update the Summary Table to match the section heading.
 - If the requirements documents do not include explicit `**Phase:**` fields (possible for pre-generalization `docs/requirements/` documents), skip this check and note: "Phase assignment check skipped — requirements documents do not include phase fields."
+- OBS-* and K6-* requirements in `technical-requirements.observability-and-testing.md` do not use `**Phase:**` fields by design — exempt them from this check. Apply phase assignment validation only to GBR-* and GTR-* requirements.
 
 ### Check 5: Metric Naming Consistency
 
 Collect all metric names from:
 - Jira task acceptance criteria
-- Observability requirements document (service-specific metrics appendix)
+- Observability requirements document (`## Per-Service Metrics Appendix` section)
 - Technical requirements (any GTR-* observability requirements or OBS-* metrics from the observability document)
 
 Verify:

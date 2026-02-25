@@ -38,15 +38,16 @@ Create a team called `generate-jira-tasks` with one teammate per service identif
 ### Coordination
 
 1. **Lead reads all requirements and service decomposition**, then partitions requirements by service ownership.
-2. **Spawn one teammate per service** in parallel. Each receives: the service's assigned requirement IDs, the full requirements text for those IDs, the DDD analysis context, the observability decision matrix (Phase 4), and the complete output format template (Phases 1-7).
-3. **Teammates generate tasks** for their service and report the completed task document.
-4. **Lead handles cross-service concerns**:
+2. **Lead pre-generates OBS-* and K6-* IDs** by applying the Phase 4 decision matrix to all requirements across all services. Write a preliminary `docs/generalized-requirements/technical-requirements.observability-and-testing.md` with all OBS-* and K6-* IDs defined (using the output format from the Output Format section below). This must happen before spawning teammates so they can reference consistent OBS-*/K6-* IDs in task acceptance criteria and `**Requirements covered:**` fields.
+3. **Spawn one teammate per service** in parallel. Each receives: the service's assigned requirement IDs, the full requirements text for those IDs, the DDD analysis context, the observability decision matrix (Phase 4), the pre-generated OBS-*/K6-* IDs from the preliminary observability requirements document, and the complete output format template (Phases 1-7).
+4. **Teammates generate tasks** for their service and report the completed task document.
+5. **Lead handles cross-service concerns**:
    - Merges cross-service dependency tables (Phase 8) across all service documents.
    - Verifies cross-service task references are consistent.
-   - Writes the shared observability document (`technical-requirements.observability-and-testing.md`) and checklist (`jira-checklist.observability.md`).
-5. **Lead writes final outputs**, ensuring cross-service dependency tables are symmetric.
+   - Finalizes the observability requirements document and writes the checklist (`jira-checklist.observability.md`), incorporating any observability requirements identified by teammates that are not yet captured in the preliminary document.
+6. **Lead writes final outputs**, ensuring cross-service dependency tables are symmetric.
 
-Each teammate should be spawned as a `general-purpose` subagent with a clear prompt listing: the service's assigned requirement IDs, the full requirements text for those IDs, the DDD analysis context, the observability decision matrix (Phase 4), and the complete output format template (Phases 1-7). If a teammate fails or returns incomplete results, the lead should complete that service's tasks directly rather than re-spawning.
+Each teammate should be spawned as a `general-purpose` subagent with a clear prompt listing: the service's assigned requirement IDs, the full requirements text for those IDs, the DDD analysis context, the observability decision matrix (Phase 4), the pre-generated OBS-*/K6-* IDs, and the complete output format template (Phases 1-7). If a teammate fails or returns incomplete results, the lead should complete that service's tasks directly rather than re-spawning.
 
 ---
 
@@ -98,7 +99,7 @@ For EVERY task, apply the observability decision matrix:
 | Adds Kafka production | Message publish rate, publish errors |
 | Changes concurrency/locking | Lock contention metrics |
 | Adds significant database operations | Connection pool gauge, query duration histogram by operation type |
-| Is on a critical path | K6 load test scenario with specific SLA targets |
+| Is on a critical path (i.e., implements a latency-sensitive synchronous user request endpoint, a background job that blocks downstream processing, or an external service call where latency directly affects user-visible response times) | K6 load test scenario with specific SLA targets |
 
 If a task matches multiple conditions, apply ALL corresponding criteria (the rows are cumulative, not exclusive). Embed these directly into each task's acceptance criteria — do NOT defer observability to a separate task (except dashboards and alert routing, which go in a finalization task). Use metric names consistent with the project's observability stack. The names below follow Prometheus conventions; adapt to the actual metrics framework (Application Insights, Datadog, etc.) if identified in the technical requirements.
 
@@ -118,7 +119,7 @@ For each task, produce:
 **Type:** Task | Story  _(Task = technical/infrastructure work; Story = user-facing feature. Do not create Epics — use phase groupings instead.)_
 **Priority:** Highest | High | Medium | Low
 **Blocked by:** {comma-separated task IDs, or "None"}
-**Requirements covered:** {comma-separated requirement IDs}
+**Requirements covered:** {comma-separated requirement IDs — include GBR-*, GTR-*, OBS-*, and K6-* IDs that this task satisfies}
 
 #### Description
 
@@ -181,7 +182,7 @@ Common failure patterns to check for:
 
 **Resolution:** Merge the infrastructure/abstraction task with the first task that populates or exercises it. The merged task should be the smallest unit that produces testable behavior. Update the dependency graph, summary table, and "Blocked by" fields in downstream tasks accordingly.
 
-After merging, re-verify the dependency graph is still acyclic and that no task exceeds the size guideline (1-3 days, or the relaxed target for large requirement sets).
+After merging, re-verify the dependency graph is still acyclic and that no task exceeds the size guideline (1-3 days for normal requirement sets; for requirement sets with 100+ requirements, the 15-30 total task count target takes priority and individual tasks may be larger).
 
 ### Phase 7: Coverage Matrix
 
@@ -319,7 +320,7 @@ Also write: `docs/generalized-requirements/jira-checklist.observability.md` with
 (Copy the Phase 4 decision matrix from the main command)
 
 ## Checklist Template
-For each Jira task, copy and evaluate:
+For each Jira task, copy and evaluate (replace `{ref}` with the numeric part of the corresponding OBS-* or K6-* ID, e.g., replace `{ref}` with `001` to produce `OBS-001` or `K6-001`):
 - [ ] Does this task add an API endpoint? → Add RED metrics (OBS-{ref})
 - [ ] Does this task add a background job? → Add job metrics (OBS-{ref})
 - [ ] Does this task call an external API? → Add dependency metrics (OBS-{ref})
@@ -336,7 +337,7 @@ For each Jira task, copy and evaluate:
 
 ## Self-Review
 
-After producing the output artifacts, follow the self-review convergence protocol in `commands/self-review-protocol.md` to iteratively refine all artifacts until stable (max 5 passes). This command produces multiple files — use Task tool subagents for verification passes 2+ as described in the protocol's Context Window Management section.
+After producing the output artifacts, follow the self-review convergence protocol in `~/.claude/commands/self-review-protocol.md` to iteratively refine all artifacts until stable (max 5 passes). This command produces multiple files — use Task tool subagents for verification passes 2+ as described in the protocol's Context Window Management section.
 
 ## Important
 
