@@ -37,7 +37,7 @@ PROMPT='Review all slash commands in ~/.claude/commands/ and all skills in ~/.cl
 - If you found and fixed zero issues, say exactly: "NO_CHANGES_FOUND"'
 
 get_checksum() {
-    find "$COMMANDS_DIR" "$SKILLS_DIR" -name "*.md" -type f -exec sha256sum {} \; 2>/dev/null | sort | sha256sum | cut -d' ' -f1
+    find -L "$COMMANDS_DIR" "$SKILLS_DIR" -name "*.md" -type f -exec sha256sum {} \; 2>/dev/null | sort | sha256sum | cut -d' ' -f1
 }
 
 snapshot_files() {
