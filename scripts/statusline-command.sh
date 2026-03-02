@@ -30,7 +30,7 @@ if [ -n "$used" ]; then
   used_int=$(printf "%.0f" "$used")
   filled=$(( used_int / 10 ))
   empty=$(( 10 - filled ))
-  bar=$(printf '%*s' "$filled" '' | tr ' ' '█')$(printf '%*s' "$empty" '' | tr ' ' '░')
+  bar=$(printf '%*s' "$filled" '' | tr ' ' '#')$(printf '%*s' "$empty" '' | tr ' ' '-')
 
   # Color: green < 70%, yellow 70-89%, red >= 90%
   if [ "$used_int" -ge 90 ]; then
