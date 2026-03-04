@@ -12,9 +12,11 @@ Vector-search knowledge base for project documentation, powered by PostgreSQL + 
   - [5.1. Database Setup - Automated](#51-database-setup---automated)
   - [5.2. Database Setup - Manual SQL](#52-database-setup---manual-sql)
 - [6. Scripts](#6-scripts)
-  - [6.1. Scripts - ingest.py](#61-scripts---ingestpy)
-  - [6.2. Scripts - recall.py](#62-scripts---recallpy)
-  - [6.3. Scripts - clear_brain.py](#63-scripts---clear_brainpy)
+  - [6.1. Scripts - brain.sh](#61-scripts---brainsh)
+  - [6.2. Scripts - ingest.py](#62-scripts---ingestpy)
+  - [6.3. Scripts - recall.py](#63-scripts---recallpy)
+  - [6.4. Scripts - list_brain.py](#64-scripts---list_brainpy)
+  - [6.5. Scripts - clear_brain.py](#65-scripts---clear_brainpy)
 - [7. Claude Code Integration](#7-claude-code-integration)
 
 ## 1. Prerequisites
@@ -109,7 +111,15 @@ The embedding dimension (384) matches the `all-MiniLM-L6-v2` model used by `inge
 
 ## 6. Scripts
 
-### 6.1. Scripts - ingest.py
+### 6.1. Scripts - brain.sh
+
+Menu-driven interface for all second brain operations. Wraps the Python scripts below with interactive prompts for filters and arguments.
+
+```bash
+./brain.sh
+```
+
+### 6.2. Scripts - ingest.py
 
 Ingest markdown documentation into the knowledge base. Splits files by heading into chunks and generates embeddings. By default, existing data for the project is deleted before ingesting so re-running always gives a clean state.
 
@@ -136,7 +146,7 @@ Documents are auto-classified by filename pattern:
 
 Documents under a `generalized-requirements/` directory are tagged with specificity `generalized`; all others are `project_specific`.
 
-### 6.2. Scripts - recall.py
+### 6.3. Scripts - recall.py
 
 Query the knowledge base using natural language. Returns the most similar chunks ranked by cosine similarity.
 
@@ -157,14 +167,34 @@ python recall.py "service boundaries" --specificity generalized
 | `--specificity` | Filter by `generalized` or `project_specific`    |
 | `--limit`       | Number of results (default: 5)                   |
 
-### 6.3. Scripts - clear_brain.py
+### 6.4. Scripts - list_brain.py
 
-Delete documents from the knowledge base.
+List documents in the knowledge base, grouped by project, doc type, and specificity. Shows chunk counts and date ranges.
 
 ```bash
-python clear_brain.py                             # clear everything (with confirmation)
-python clear_brain.py --project identity-server   # clear one project
-python clear_brain.py --force                     # skip confirmation
+python list_brain.py                                # show everything
+python list_brain.py --project identity-server      # filter by project
+python list_brain.py --type ddd                     # filter by doc type
+python list_brain.py --specificity generalized      # filter by specificity
+```
+
+| Option          | Description                                      |
+|-----------------|--------------------------------------------------|
+| `--project`     | Filter by project name                           |
+| `--type`        | Filter by doc type                               |
+| `--specificity` | Filter by `generalized` or `project_specific`    |
+
+### 6.5. Scripts - clear_brain.py
+
+Delete documents from the knowledge base. All filters are combinable.
+
+```bash
+python clear_brain.py                                    # clear everything (with confirmation)
+python clear_brain.py --project identity-server          # clear one project
+python clear_brain.py --type ddd                         # clear all DDD analysis docs
+python clear_brain.py --project myapp --type jira        # clear jira docs for one project
+python clear_brain.py --specificity generalized          # clear all generalized docs
+python clear_brain.py --force                            # skip confirmation
 ```
 
 ## 7. Claude Code Integration
