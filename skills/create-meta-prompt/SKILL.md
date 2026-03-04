@@ -1,7 +1,7 @@
 ---
 name: create-meta-prompt
 description: Create research/plan workflow for complex tasks that need exploration
-allowed-tools: Read, Glob, Grep, Write, Bash(ls*), Bash(mkdir*), AskUserQuestion
+allowed-tools: Read, Glob, Grep, Write, Bash(ls*), Bash(mkdir*), Bash(python3*), AskUserQuestion
 argument-hint: <task description>
 user-invocable: true
 ---
@@ -29,19 +29,30 @@ Workflow: **Research** → **Plan** → **Implement** (using plan directly)
    - `CLAUDE.md` (required if exists)
    - `README.md`
 
-2. **Check for existing workflows**
+2. **Query second brain for prior knowledge**
+   Run the recall script using the task description as the query:
+   ```bash
+   python3 ~/.claude/scripts/second-brain/recall.py "$ARGUMENTS" --limit 5
+   ```
+   If you can infer a project name from `CLAUDE.md` or the current repo, add `--project <name>`.
+   If the task clearly maps to a doc type (e.g., DDD analysis, requirements, data flows), add `--type <type>`.
+
+   - If the recall script fails (not installed, Supabase unavailable, etc.), log the error and continue — second brain context is supplementary, not blocking.
+   - If results are returned, summarize the relevant findings and carry them forward as **Prior Knowledge** when generating the prompt in step 6.
+
+3. **Check for existing workflows**
    ```bash
    ls -d .prompts/*-research .prompts/*-plan 2>/dev/null
    ```
    If any exist, list them and ask: "Continue one of these, or start new?" When checking, also consider whether the user's current task description might match an existing workflow under a different slug name.
-   - If continuing: use that slug and proceed to step 4 — the decision table will determine which phase to generate next based on the existing artifacts (research.md, plan.md) in that workflow
+   - If continuing: use that slug and proceed to step 5 — the decision table will determine which phase to generate next based on the existing artifacts (research.md, plan.md) in that workflow
    - If new: derive slug from task. If the derived slug matches an existing workflow directory, append a numeric suffix (e.g., `refactor-payment-system-2`) or ask the user for a different name.
 
-3. **Determine slug** (if starting new)
+4. **Determine slug** (if starting new)
    - Lowercase, hyphenate, drop stopwords (a, an, the, of, for, to)
    - Example: "Refactor the payment system" → `refactor-payment-system`
 
-4. **Determine which phase to generate**
+5. **Determine which phase to generate**
 
    Parse the `## Metadata` / `### Status` section at the end of `research.md` or `plan.md`. If no Metadata section exists, treat Status as `success`.
 
@@ -54,7 +65,7 @@ Workflow: **Research** → **Plan** → **Implement** (using plan directly)
    | `plan.md` exists, Status is `partial` or `failed` | Ask user: re-generate plan or implement with current plan? |
    | `plan.md` exists, Status is `success` (or no metadata) | No prompt needed — tell user to implement with `/run-prompt {slug}-plan` |
 
-5. **Generate the prompt** — create the output directory (and `.prompts/` parent if needed) using `mkdir -p`.
+6. **Generate the prompt** — create the output directory (and `.prompts/` parent if needed) using `mkdir -p`.
 
 ## Research Prompt
 
@@ -70,6 +81,11 @@ Understand [what needs to be understood] before implementation.
 - Guidelines: `CLAUDE.md`
 - Key files: [relevant paths]
 - Stack: [if relevant]
+
+## Prior Knowledge
+[If second brain returned results, include a summary here. Otherwise omit this section.]
+- [Key insight from past project documentation]
+- [Relevant patterns, decisions, or constraints discovered]
 
 ## Questions to Answer
 1. [Specific question about the codebase]
@@ -109,6 +125,11 @@ Write findings to `.prompts/{slug}-research/research.md`:
 ## Context
 - Research: `.prompts/{slug}-research/research.md`
 - Guidelines: `CLAUDE.md`
+
+## Prior Knowledge
+[If second brain returned results, include a summary here. Otherwise omit this section.]
+- [Key insight from past project documentation]
+- [Relevant patterns, decisions, or constraints discovered]
 
 ## Instructions
 1. Read research.md
