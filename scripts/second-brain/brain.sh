@@ -6,10 +6,34 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON=python3
+CLAUDE_ENV="$HOME/.claude/.env"
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 run_py() { "$PYTHON" "$SCRIPT_DIR/$1" "${@:2}"; }
+
+resolve_vault_path() {
+    if [[ ! -f "$CLAUDE_ENV" ]]; then
+        echo "Error: $CLAUDE_ENV not found. Copy .env.example to ~/.claude/.env first." >&2
+        return 1
+    fi
+    local vault
+    vault=$(grep '^OBSIDIAN_VAULT=' "$CLAUDE_ENV" | cut -d= -f2-)
+    if [[ -z "$vault" ]]; then
+        echo "Error: OBSIDIAN_VAULT not set in $CLAUDE_ENV." >&2
+        return 1
+    fi
+    echo "$vault"
+}
+
+resolve_project_name() {
+    local toplevel
+    toplevel=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        echo "Error: not in a git repository. cd into a project first, or use manual ingest." >&2
+        return 1
+    }
+    basename "$toplevel"
+}
 
 prompt_value() {
     local label="$1" default="${2:-}"
@@ -51,9 +75,48 @@ do_list() {
     pause
 }
 
+do_ingest_pipeline() {
+    echo
+    echo "=== Ingest Pipeline Output ==="
+    echo
+
+    local vault project docs_path
+    vault=$(resolve_vault_path) || { pause; return; }
+    project=$(resolve_project_name) || { pause; return; }
+    docs_path="$vault/Pipeline/$project"
+
+    if [[ ! -d "$docs_path" ]]; then
+        echo "Error: $docs_path does not exist."
+        echo "Run the pipeline stages first to generate output."
+        pause
+        return
+    fi
+
+    local md_count
+    md_count=$(find "$docs_path" -name '*.md' | wc -l)
+    if [[ "$md_count" -eq 0 ]]; then
+        echo "Error: no .md files found in $docs_path."
+        pause
+        return
+    fi
+
+    echo "Project:  $project"
+    echo "Path:     $docs_path"
+    echo "Files:    $md_count markdown file(s)"
+    echo "Mode:     replace (deletes old chunks first)"
+    echo
+
+    read -rp "Proceed? [Y/n] " confirm
+    [[ "$confirm" =~ ^[nN] ]] && echo "Aborted." && pause && return
+
+    echo
+    run_py ingest.py "$docs_path" "$project"
+    pause
+}
+
 do_ingest() {
     echo
-    echo "=== Ingest Documents ==="
+    echo "=== Ingest Documents (Manual) ==="
     echo
     local docs_path project mode
     docs_path=$(prompt_value "Path to docs directory")
@@ -155,23 +218,27 @@ main_menu() {
         echo "║     Browse what's stored, grouped by project and doc type.    ║"
         echo "║     Shows chunk counts and date ranges. Filterable.           ║"
         echo "║                                                               ║"
-        echo "║  2) Ingest documents                                          ║"
-        echo "║     Load markdown files from a directory into the database.   ║"
-        echo "║     Replaces existing project data by default.                ║"
+        echo "║  2) Ingest pipeline output                                    ║"
+        echo "║     Auto-detect project name and vault path from the current  ║"
+        echo "║     git repo and ~/.claude/.env. One-step ingest.             ║"
         echo "║                                                               ║"
-        echo "║  3) Query / recall                                            ║"
+        echo "║  3) Ingest documents (manual)                                 ║"
+        echo "║     Load markdown files from any directory into the database. ║"
+        echo "║     Specify path and project name manually.                   ║"
+        echo "║                                                               ║"
+        echo "║  4) Query / recall                                            ║"
         echo "║     Semantic search across all stored documents.              ║"
         echo "║     Returns the most relevant chunks for a natural-language   ║"
         echo "║     query, ranked by similarity.                              ║"
         echo "║                                                               ║"
-        echo "║  4) Delete (filtered)                                         ║"
+        echo "║  5) Delete (filtered)                                         ║"
         echo "║     Remove documents matching specific filters (project,      ║"
         echo "║     doc type, specificity). Shows matches before confirming.  ║"
         echo "║                                                               ║"
-        echo "║  5) Clear all                                                 ║"
+        echo "║  6) Clear all                                                 ║"
         echo "║     Wipe the entire second brain database. Use with care.     ║"
         echo "║                                                               ║"
-        echo "║  6) Setup database                                            ║"
+        echo "║  7) Setup database                                            ║"
         echo "║     Create the schema, table, and vector index. Safe to       ║"
         echo "║     re-run — uses IF NOT EXISTS for all objects.              ║"
         echo "║                                                               ║"
@@ -182,12 +249,13 @@ main_menu() {
         read -rp "Choice: " choice
 
         case "$choice" in
-            1) do_list      ;;
-            2) do_ingest    ;;
-            3) do_recall    ;;
-            4) do_delete    ;;
-            5) do_clear_all ;;
-            6) do_setup     ;;
+            1) do_list             ;;
+            2) do_ingest_pipeline  ;;
+            3) do_ingest           ;;
+            4) do_recall           ;;
+            5) do_delete           ;;
+            6) do_clear_all        ;;
+            7) do_setup            ;;
             q|Q) echo "Bye."; exit 0 ;;
             *) echo "Invalid choice."; sleep 1 ;;
         esac
