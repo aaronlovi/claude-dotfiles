@@ -8,11 +8,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -Command \"[console]::beep(800,300)\""
+            "command": "command -v powershell.exe >/dev/null 2>&1 && powershell.exe -Command \"[console]::beep(800,300)\" || true"
           },
           {
             "type": "command",
-            "command": "powershell.exe -Command \"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > \\$null; \\$t = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02); \\$n = \\$t.GetElementsByTagName('text'); \\$n.Item(0).AppendChild(\\$t.CreateTextNode('Claude Code')) > \\$null; \\$n.Item(1).AppendChild(\\$t.CreateTextNode('Task complete')) > \\$null; [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Claude Code').Show([Windows.UI.Notifications.ToastNotification]::new(\\$t))\""
+            "command": "command -v powershell.exe >/dev/null 2>&1 && powershell.exe -Command \"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > \\$null; \\$t = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02); \\$n = \\$t.GetElementsByTagName('text'); \\$n.Item(0).AppendChild(\\$t.CreateTextNode('Claude Code')) > \\$null; \\$n.Item(1).AppendChild(\\$t.CreateTextNode('Task complete')) > \\$null; [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Claude Code').Show([Windows.UI.Notifications.ToastNotification]::new(\\$t))\" || true"
           }
         ]
       }
@@ -23,11 +23,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -Command \"[console]::beep(1000,150); Start-Sleep -Milliseconds 100; [console]::beep(1000,150)\""
+            "command": "command -v powershell.exe >/dev/null 2>&1 && powershell.exe -Command \"[console]::beep(1000,150); Start-Sleep -Milliseconds 100; [console]::beep(1000,150)\" || true"
           },
           {
             "type": "command",
-            "command": "powershell.exe -Command \"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > \\$null; \\$t = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02); \\$n = \\$t.GetElementsByTagName('text'); \\$n.Item(0).AppendChild(\\$t.CreateTextNode('Claude Code')) > \\$null; \\$n.Item(1).AppendChild(\\$t.CreateTextNode('Permission needed')) > \\$null; [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Claude Code').Show([Windows.UI.Notifications.ToastNotification]::new(\\$t))\""
+            "command": "command -v powershell.exe >/dev/null 2>&1 && powershell.exe -Command \"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > \\$null; \\$t = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02); \\$n = \\$t.GetElementsByTagName('text'); \\$n.Item(0).AppendChild(\\$t.CreateTextNode('Claude Code')) > \\$null; \\$n.Item(1).AppendChild(\\$t.CreateTextNode('Permission needed')) > \\$null; [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('Claude Code').Show([Windows.UI.Notifications.ToastNotification]::new(\\$t))\" || true"
           }
         ]
       }
@@ -41,13 +41,8 @@
     "frontend-design@claude-plugins-official": true
   },
   "allowedTools": [
-    "Bash(find:*)",
     "Bash(ls:*)",
     "Bash(tree:*)",
-    "Bash(grep:*)",
-    "Bash(cat:*)",
-    "Bash(head:*)",
-    "Bash(tail:*)",
     "Bash(wc:*)",
     "Bash(diff:*)",
     "Bash(file:*)",
@@ -67,7 +62,6 @@
     "Bash(uniq:*)",
     "Bash(cut:*)",
     "Bash(jq:*)",
-    "Bash(rg:*)",
     "Bash(echo:*)",
     "Bash(printf:*)",
     "Bash(date:*)",
@@ -81,7 +75,6 @@
     "Bash(tr:*)",
     "Bash(tac:*)",
     "Bash(rev:*)",
-    "Bash(awk:*)",
     "Bash(sha256sum:*)",
     "Bash(md5sum:*)",
     "Bash(test:*)",

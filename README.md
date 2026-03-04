@@ -9,7 +9,7 @@ Global configuration, slash commands, and skills for [Claude Code](https://docs.
 | `CLAUDE.md` | Global preferences (Mermaid diagrams, numbered headings, ToC conventions) |
 | `settings.json` | Allowed tools and environment variables |
 | `commands/` | 14 slash commands — a requirements-to-Jira pipeline plus second brain integration |
-| `skills/` | 4 skills for prompt management |
+| `skills/` | 7 skills — prompt management, code review, and task wrap-up |
 | `scripts/` | Second brain management scripts and maintenance utilities |
 
 ### Slash Commands
@@ -40,7 +40,10 @@ Commands are listed in pipeline stage order. Run `/pipeline` to see the full seq
 | `create-prompt` | Create a task prompt when work is clear and ready to implement |
 | `create-meta-prompt` | Create research/plan workflow for complex tasks |
 | `run-prompt` | Execute prompts from `.prompts/` |
-| `prompt-rules` | Shared conventions for the prompt system |
+| `prompt-rules` | Shared conventions for the prompt system (not user-invocable) |
+| `review-squashed-changes` | Review all code changes in a squashed commit on top of origin/main |
+| `review-copilot-comments` | Triage GitHub Copilot code review comments on the current PR |
+| `wrap-up` | Final sweep of a completed task — checks for loose ends and fixes them |
 
 ## Installation
 
@@ -63,6 +66,14 @@ Files are symlinked into `~/.claude`. Changes you make in either location are re
 ```
 
 Files are copied into `~/.claude`. Use this if you want a standalone install that doesn't depend on the repo location.
+
+### Uninstall
+
+```bash
+./uninstall.sh
+```
+
+Only removes symlinks that point back to this repo. Non-symlinked files (from `--copy` installs) are left untouched with a warning. User files like `~/.claude/.env` are never removed.
 
 ### Safety
 
