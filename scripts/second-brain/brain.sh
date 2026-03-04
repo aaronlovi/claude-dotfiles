@@ -2,7 +2,7 @@
 #
 # brain.sh - Menu-driven interface for second brain management
 #
-set -euo pipefail
+set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON=python3
