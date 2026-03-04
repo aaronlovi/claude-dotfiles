@@ -7,16 +7,27 @@ You are a senior architect extracting and cataloging the major system flows from
 
 ## Input
 
-$ARGUMENTS should be the path to the project-specific requirements directory (e.g., `docs/requirements/`). If empty, look for `docs/requirements/`. If the specified path is a file rather than a directory, use its parent directory. If the target path does not exist, stop and tell the user.
+$ARGUMENTS should be the path to the project-specific requirements directory (e.g., `{output-base}/requirements/`). If empty, look for `{output-base}/requirements/`. If the specified path is a file rather than a directory, use its parent directory. If the target path does not exist, stop and tell the user.
 
 ## Prerequisites
 
 **Required:** Business requirements (`business-requirements.md`) and technical requirements (`technical-requirements.md`) in the input directory. If either is missing, stop and tell the user to run `/extract-requirements` first.
 
-**Optional:** DDD analysis (`docs/ddd-analysis.md`). If present:
+**Optional:** DDD analysis (`{output-base}/ddd-analysis.md`). If present:
 - Use the state machines section to identify flows with explicit state transitions and their valid/invalid paths.
 - Use the ubiquitous language glossary to ensure consistent terminology in flow descriptions.
 - Use the context mapping section to identify cross-system integration flows.
+
+## Output Location
+
+Before writing any output, determine the output base directory:
+
+1. Read `~/.claude/.env` to get the `OBSIDIAN_VAULT` path.
+2. Derive the project name: `basename $(git rev-parse --show-toplevel)`
+3. Set output base: `$OBSIDIAN_VAULT/Pipeline/{project-name}/`
+4. Create the output directory with `mkdir -p` if it doesn't exist.
+
+All output paths below are relative to this base directory (not the current working directory).
 
 ## Process
 
@@ -73,7 +84,7 @@ Assemble the flow catalog using the output format below.
 
 ## Output Format
 
-Write to `docs/requirements/flow-catalog.md`:
+Write to `{output-base}/requirements/flow-catalog.md`:
 
 ```
 # Flow Catalog: {Service Name}
@@ -194,4 +205,4 @@ After producing the output artifact, follow the self-review convergence protocol
 - The **Requirement Coverage** section is critical — it validates that the flow catalog accounts for all requirements. Orphaned requirements signal missing flows or overlooked system behaviors. TR-* requirements must appear in either "Covered Requirements" or "System-Wide Constraints" — never in "Uncovered Requirements". Only BR-* requirements may appear in "Uncovered Requirements" (when no flow covers them).
 - Pre/postconditions in the Overview table should be concrete and testable (e.g., "User exists and is in ACTIVE state"), not vague (e.g., "System is ready").
 - This command produces a single synthesized output and does not support Agent Teams parallelization.
-- **Next step**: Run `/generalize-requirements docs/requirements/` to produce platform-agnostic requirements (Stage 4). See `/pipeline` for the full sequence of subsequent stages.
+- **Next step**: Run `/generalize-requirements {output-base}/requirements/` to produce platform-agnostic requirements (Stage 4). See `/pipeline` for the full sequence of subsequent stages.

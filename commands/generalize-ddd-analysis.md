@@ -7,17 +7,28 @@ You are a senior architect creating a platform-agnostic version of an existing D
 
 ## Input
 
-$ARGUMENTS should be the path to the generalized requirements directory (e.g., `docs/generalized-requirements/`). If empty, look for `docs/generalized-requirements/`. If the target path does not exist, stop and tell the user.
+$ARGUMENTS should be the path to the generalized requirements directory (e.g., `{output-base}/generalized-requirements/`). If empty, look for `{output-base}/generalized-requirements/`. If the target path does not exist, stop and tell the user.
 
 ## Prerequisites
 
 **Required:** All three of the following must exist. If any is missing, stop and tell the user which document is needed.
 
-1. **Original DDD analysis** (`docs/ddd-analysis.md`): The source document to generalize. This document is NEVER modified — it is preserved as a faithful record of the original codebase.
+1. **Original DDD analysis** (`{output-base}/ddd-analysis.md`): The source document to generalize. This document is NEVER modified — it is preserved as a faithful record of the original codebase.
 
-2. **Generalized business requirements** (`docs/generalized-requirements/business-requirements.md`): Contains the terminology mapping in its "Traceability from Original Requirements" section. This is the authoritative source for term substitutions.
+2. **Generalized business requirements** (`{output-base}/generalized-requirements/business-requirements.md`): Contains the terminology mapping in its "Traceability from Original Requirements" section. This is the authoritative source for term substitutions.
 
-3. **Generalized technical requirements** (`docs/generalized-requirements/technical-requirements.md`): Contains additional terminology mapping in its "Traceability from Original Requirements" section. Also the authoritative source for privilege name mappings.
+3. **Generalized technical requirements** (`{output-base}/generalized-requirements/technical-requirements.md`): Contains additional terminology mapping in its "Traceability from Original Requirements" section. Also the authoritative source for privilege name mappings.
+
+## Output Location
+
+Before writing any output, determine the output base directory:
+
+1. Read `~/.claude/.env` to get the `OBSIDIAN_VAULT` path.
+2. Derive the project name: `basename $(git rev-parse --show-toplevel)`
+3. Set output base: `$OBSIDIAN_VAULT/Pipeline/{project-name}/`
+4. Create the output directory with `mkdir -p` if it doesn't exist.
+
+All output paths below are relative to this base directory (not the current working directory).
 
 ## Process
 
@@ -53,7 +64,7 @@ Apply the terminology map to every section of the original DDD analysis. Preserv
 
 ### Phase 3: Cross-Reference with Service Decomposition
 
-Check if `docs/generalized-requirements/service-decomposition.md` exists. If not, skip this phase entirely. (In the standard pipeline flow, the service decomposition does not yet exist at this stage. This phase applies when re-running generalize-ddd-analysis after service decomposition has been completed.)
+Check if `{output-base}/generalized-requirements/service-decomposition.md` exists. If not, skip this phase entirely. (In the standard pipeline flow, the service decomposition does not yet exist at this stage. This phase applies when re-running generalize-ddd-analysis after service decomposition has been completed.)
 
 If the file exists:
 - Verify that the generalized DDD analysis's bounded context section is consistent with the service decomposition
@@ -70,7 +81,7 @@ Before writing the output, verify:
 
 ## Output Format
 
-Write to `docs/generalized-requirements/ddd-analysis.md`.
+Write to `{output-base}/generalized-requirements/ddd-analysis.md`.
 
 The document must include:
 1. A header note: "Generalized from [original DDD analysis](../ddd-analysis.md) using terminology mappings from [business requirements](./business-requirements.md) and [technical requirements](./technical-requirements.md)."
@@ -93,11 +104,11 @@ After producing the output artifact, follow the self-review convergence protocol
 
 ## Important
 
-- **Do NOT modify the original** `docs/ddd-analysis.md`. It is a historical record of the codebase.
+- **Do NOT modify the original** `{output-base}/ddd-analysis.md`. It is a historical record of the codebase.
 - **Preserve all DDD assessments** (alignment ratings, coupling assessments, recommendations). Only change terminology, not conclusions.
 - **Keep code location references** as `(original: file:line)`, preserving the full path and line numbers from the original DDD analysis — a new implementation would use different filenames, but the references are still useful for tracing back to the original analysis.
 - **Be comprehensive** — every section of the original must appear in the generalized version. Don't skip sections or abbreviate.
 - **Keep the same level of detail** as the original. This is a terminology transformation, not a summarization.
 - If the generalized requirements introduced NEW concepts that don't exist in the original DDD analysis (e.g., "Activity Limit" covers more than just poker game limits), note the expanded scope in the generalized version.
 - This command produces a single synthesized output and does not support Agent Teams parallelization.
-- **Next step**: If a project-specific flow catalog exists (`docs/requirements/flow-catalog.md`), run `/generalize-flows` to generalize it. Otherwise, skip to `/decompose-services`.
+- **Next step**: If a project-specific flow catalog exists (`{output-base}/requirements/flow-catalog.md`), run `/generalize-flows` to generalize it. Otherwise, skip to `/decompose-services`.

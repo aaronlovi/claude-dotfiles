@@ -7,7 +7,7 @@ You are a senior engineering lead creating Jira tasks from requirements document
 
 ## Input
 
-$ARGUMENTS should be the path to generalized requirements (e.g., `docs/generalized-requirements/`). If empty, look for `docs/generalized-requirements/`. If the target path does not exist, stop and tell the user.
+$ARGUMENTS should be the path to generalized requirements (e.g., `{output-base}/generalized-requirements/`). If empty, look for `{output-base}/generalized-requirements/`. If the target path does not exist, stop and tell the user.
 
 ## Prerequisites
 
@@ -15,9 +15,9 @@ $ARGUMENTS should be the path to generalized requirements (e.g., `docs/generaliz
 
 **Recommended:** Service decomposition (`service-decomposition.md` in the input directory). If missing, warn the user: "No service decomposition found — generating tasks for a single service. Run `/decompose-services` first if you want per-service task files." Then proceed with a single-service task file, deriving the service abbreviation from the service name in the requirements document title (e.g., "Identity & Access Management" → `IAM`). If the title is generic, ask the user for a 3-4 character abbreviation.
 
-**Optional:** DDD analysis. Prefer the generalized version (`docs/generalized-requirements/ddd-analysis.md`) if it exists; fall back to the original (`docs/ddd-analysis.md`). Use the ubiquitous language for consistent naming in task titles and descriptions. Use state machines to identify workflow tasks. Use aggregate boundaries to scope tasks correctly (one aggregate per task where possible).
+**Optional:** DDD analysis. Prefer the generalized version (`{output-base}/generalized-requirements/ddd-analysis.md`) if it exists; fall back to the original (`{output-base}/ddd-analysis.md`). Use the ubiquitous language for consistent naming in task titles and descriptions. Use state machines to identify workflow tasks. Use aggregate boundaries to scope tasks correctly (one aggregate per task where possible).
 
-**Optional:** Flow catalog (`docs/generalized-requirements/flow-catalog.md`). If present, use flow step sequences and error paths to write more detailed acceptance criteria. Reference specific flow steps when tasks implement multi-step processes.
+**Optional:** Flow catalog (`{output-base}/generalized-requirements/flow-catalog.md`). If present, use flow step sequences and error paths to write more detailed acceptance criteria. Reference specific flow steps when tasks implement multi-step processes.
 
 ## Agent Teams Mode (Optional)
 
@@ -31,14 +31,14 @@ Create a team called `generate-jira-tasks` with one teammate per service identif
 
 | Teammate | Scope | Output |
 |---|---|---|
-| `tasks-{service-1}` | All requirements assigned to service 1 | `docs/generalized-requirements/jira-tasks.{service-1}.md` |
-| `tasks-{service-2}` | All requirements assigned to service 2 | `docs/generalized-requirements/jira-tasks.{service-2}.md` |
-| `tasks-{service-3}` | All requirements assigned to service 3 | `docs/generalized-requirements/jira-tasks.{service-3}.md` |
+| `tasks-{service-1}` | All requirements assigned to service 1 | `{output-base}/generalized-requirements/jira-tasks.{service-1}.md` |
+| `tasks-{service-2}` | All requirements assigned to service 2 | `{output-base}/generalized-requirements/jira-tasks.{service-2}.md` |
+| `tasks-{service-3}` | All requirements assigned to service 3 | `{output-base}/generalized-requirements/jira-tasks.{service-3}.md` |
 
 ### Coordination
 
 1. **Lead reads all requirements and service decomposition**, then partitions requirements by service ownership.
-2. **Lead pre-generates OBS-* and K6-* IDs** by applying the Phase 4 decision matrix to all requirements across all services. Write a preliminary `docs/generalized-requirements/technical-requirements.observability-and-testing.md` with all OBS-* and K6-* IDs defined (using the output format from the Output Format section below). This must happen before spawning teammates so they can reference consistent OBS-*/K6-* IDs in task acceptance criteria and `**Requirements covered:**` fields.
+2. **Lead pre-generates OBS-* and K6-* IDs** by applying the Phase 4 decision matrix to all requirements across all services. Write a preliminary `{output-base}/generalized-requirements/technical-requirements.observability-and-testing.md` with all OBS-* and K6-* IDs defined (using the output format from the Output Format section below). This must happen before spawning teammates so they can reference consistent OBS-*/K6-* IDs in task acceptance criteria and `**Requirements covered:**` fields.
 3. **Spawn one teammate per service** in parallel. Each receives: the service's assigned requirement IDs, the full requirements text for those IDs, the DDD analysis context, the observability decision matrix (Phase 4), the pre-generated OBS-*/K6-* IDs from the preliminary observability requirements document, and the complete output format template (Phases 1-7).
 4. **Teammates generate tasks** for their service and report the completed task document.
 5. **Lead handles cross-service concerns**:
@@ -50,6 +50,17 @@ Create a team called `generate-jira-tasks` with one teammate per service identif
 Each teammate should be spawned as a `general-purpose` subagent with a clear prompt listing: the service's assigned requirement IDs, the full requirements text for those IDs, the DDD analysis context, the observability decision matrix (Phase 4), the pre-generated OBS-*/K6-* IDs, and the complete output format template (Phases 1-7). If a teammate fails or returns incomplete results, the lead should complete that service's tasks directly rather than re-spawning.
 
 ---
+
+## Output Location
+
+Before writing any output, determine the output base directory:
+
+1. Read `~/.claude/.env` to get the `OBSIDIAN_VAULT` path.
+2. Derive the project name: `basename $(git rev-parse --show-toplevel)`
+3. Set output base: `$OBSIDIAN_VAULT/Pipeline/{project-name}/`
+4. Create the output directory with `mkdir -p` if it doesn't exist.
+
+All output paths below are relative to this base directory (not the current working directory).
 
 ## Process
 
@@ -205,7 +216,7 @@ If the architecture is single-service, skip this phase and omit the Cross-Servic
 
 ## Output Format
 
-Write one file per service: `docs/generalized-requirements/jira-tasks.{service-name}.md` (use the service name from the decomposition document, converted to kebab-case, e.g., `jira-tasks.identity-service.md`). Process boundaries that are not separate services (e.g., init containers, seed data initializers) do not get separate task files — their tasks belong to the parent service's file.
+Write one file per service: `{output-base}/generalized-requirements/jira-tasks.{service-name}.md` (use the service name from the decomposition document, converted to kebab-case, e.g., `jira-tasks.identity-service.md`). Process boundaries that are not separate services (e.g., init containers, seed data initializers) do not get separate task files — their tasks belong to the parent service's file.
 
 ```
 # Jira Tasks: {Service Name}
@@ -248,7 +259,7 @@ Write one file per service: `docs/generalized-requirements/jira-tasks.{service-n
 
 Also write:
 
-### `docs/generalized-requirements/technical-requirements.observability-and-testing.md`
+### `{output-base}/generalized-requirements/technical-requirements.observability-and-testing.md`
 
 Use `OBS-{###}` as the ID prefix for observability requirements and `K6-{###}` for load test scenarios (zero-padded 3-digit numbers starting from 001, e.g., OBS-001, K6-001). These are new requirement IDs (like GBR/GTR) defined in this document and referenced from task acceptance criteria. They are validated by `/review-requirements` Check 1.
 
@@ -310,7 +321,7 @@ Use `OBS-{###}` as the ID prefix for observability requirements and `K6-{###}` f
 |-------------|------|--------|------------|-----------------|
 ```
 
-Also write: `docs/generalized-requirements/jira-checklist.observability.md` with this structure:
+Also write: `{output-base}/generalized-requirements/jira-checklist.observability.md` with this structure:
 ```
 # Observability Checklist
 

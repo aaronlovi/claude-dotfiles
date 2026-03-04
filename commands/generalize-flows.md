@@ -7,19 +7,30 @@ You are a senior architect creating a platform-agnostic version of an existing f
 
 ## Input
 
-$ARGUMENTS should be the path to the generalized requirements directory (e.g., `docs/generalized-requirements/`). If empty, look for `docs/generalized-requirements/`. If the target path does not exist, stop and tell the user.
+$ARGUMENTS should be the path to the generalized requirements directory (e.g., `{output-base}/generalized-requirements/`). If empty, look for `{output-base}/generalized-requirements/`. If the target path does not exist, stop and tell the user.
 
 ## Prerequisites
 
 **Required:** All three of the following must exist. If any is missing, stop and tell the user which document is needed.
 
-1. **Original flow catalog** (`docs/requirements/flow-catalog.md`): The source document to generalize. This document is NEVER modified — it is preserved as a faithful record of the original system's flows.
+1. **Original flow catalog** (`{output-base}/requirements/flow-catalog.md`): The source document to generalize. This document is NEVER modified — it is preserved as a faithful record of the original system's flows.
 
-2. **Generalized business requirements** (`docs/generalized-requirements/business-requirements.md`): Contains the terminology mapping in its "Traceability from Original Requirements" section. This is the authoritative source for term substitutions and the BR-* → GBR-* ID mapping.
+2. **Generalized business requirements** (`{output-base}/generalized-requirements/business-requirements.md`): Contains the terminology mapping in its "Traceability from Original Requirements" section. This is the authoritative source for term substitutions and the BR-* → GBR-* ID mapping.
 
-3. **Generalized technical requirements** (`docs/generalized-requirements/technical-requirements.md`): Contains additional terminology mapping in its "Traceability from Original Requirements" section. This is the authoritative source for the TR-* → GTR-* ID mapping.
+3. **Generalized technical requirements** (`{output-base}/generalized-requirements/technical-requirements.md`): Contains additional terminology mapping in its "Traceability from Original Requirements" section. This is the authoritative source for the TR-* → GTR-* ID mapping.
 
-**Optional:** Generalized DDD analysis (`docs/generalized-requirements/ddd-analysis.md`). If present, cross-reference state machine terminology to ensure flow descriptions use the same generalized state names and transition labels.
+**Optional:** Generalized DDD analysis (`{output-base}/generalized-requirements/ddd-analysis.md`). If present, cross-reference state machine terminology to ensure flow descriptions use the same generalized state names and transition labels.
+
+## Output Location
+
+Before writing any output, determine the output base directory:
+
+1. Read `~/.claude/.env` to get the `OBSIDIAN_VAULT` path.
+2. Derive the project name: `basename $(git rev-parse --show-toplevel)`
+3. Set output base: `$OBSIDIAN_VAULT/Pipeline/{project-name}/`
+4. Create the output directory with `mkdir -p` if it doesn't exist.
+
+All output paths below are relative to this base directory (not the current working directory).
 
 ## Process
 
@@ -62,7 +73,7 @@ Apply both the terminology map and the ID map to every section of the original f
 
 ### Phase 3: Cross-Reference with Generalized DDD Analysis
 
-If `docs/generalized-requirements/ddd-analysis.md` exists:
+If `{output-base}/generalized-requirements/ddd-analysis.md` exists:
 - Verify that state names in flow steps match the generalized DDD analysis's state machine diagrams.
 - Verify that actor/entity names match the generalized ubiquitous language glossary.
 - If discrepancies are found, prefer the generalized DDD analysis terminology (it was established first).
@@ -80,7 +91,7 @@ Before writing the output, verify:
 
 ## Output Format
 
-Write to `docs/generalized-requirements/flow-catalog.md`.
+Write to `{output-base}/generalized-requirements/flow-catalog.md`.
 
 The document must use the same structure as the original flow catalog (see `/extract-flows` output format), with these additions:
 
@@ -108,7 +119,7 @@ After producing the output artifact, follow the self-review convergence protocol
 
 ## Important
 
-- **Do NOT modify the original** `docs/requirements/flow-catalog.md`. It is a historical record of the project-specific flows.
+- **Do NOT modify the original** `{output-base}/requirements/flow-catalog.md`. It is a historical record of the project-specific flows.
 - **Preserve all flow structures** — step counts, error path conditions, interaction matrices. Only change terminology and IDs, not the behavioral content.
 - **Be comprehensive** — every section of the original must appear in the generalized version. Don't skip flows or abbreviate tables.
 - **Keep the same level of detail** as the original. This is a terminology transformation, not a summarization.

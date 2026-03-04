@@ -35,11 +35,22 @@ Create a team called `ddd-analysis` with 3 teammates. The **lead** executes Phas
 2. **Spawn all 3 teammates** in parallel. Each receives: the ubiquitous language output, the structural discovery results, and their specific phase instructions.
 3. **Teammates report their sections** back to the lead.
 4. **Lead synthesizes** all sections, then executes Phase 6 (Architectural Assessment) and Phase 7 (Recommendations) — these require the full picture.
-5. **Lead writes the final output** to `docs/ddd-analysis.md`.
+5. **Lead writes the final output** to `{output-base}/ddd-analysis.md`.
 
 Each teammate should be spawned as a `general-purpose` subagent with a clear prompt listing: the relevant file paths, the ubiquitous language glossary, their specific phase instructions (copy from the Process section), and the expected output format. Teammates report their sections back to the lead — they do NOT write to the final output file. If a teammate fails or returns incomplete results, the lead should complete that phase's work directly rather than re-spawning. After synthesizing all sections, the lead should verify cross-section terminology consistency before writing.
 
 ---
+
+## Output Location
+
+Before writing any output, determine the output base directory:
+
+1. Read `~/.claude/.env` to get the `OBSIDIAN_VAULT` path.
+2. Derive the project name: `basename $(git rev-parse --show-toplevel)`
+3. Set output base: `$OBSIDIAN_VAULT/Pipeline/{project-name}/`
+4. Create the output directory with `mkdir -p` if it doesn't exist.
+
+All output paths below are relative to this base directory (not the current working directory).
 
 ## Process
 
@@ -188,7 +199,7 @@ Prioritize recommendations that improve understanding and maintainability withou
 
 ## Output Format
 
-Create the `docs/` directory if it doesn't exist, then write the output to `docs/ddd-analysis.md` with this structure:
+Create the output base directory if it doesn't exist, then write the output to `{output-base}/ddd-analysis.md` with this structure:
 
 ```
 # Domain-Driven Design Analysis: {Service Name}

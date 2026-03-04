@@ -10,35 +10,39 @@ Run these commands in order. Each stage builds on artifacts from previous stages
 
 | Stage | Command | Output | Prerequisites |
 |-------|---------|--------|---------------|
-| 1 | `/ddd-analysis {source-dir}` | `docs/ddd-analysis.md` | Source code access |
-| 2 | `/analyze-codebase {source-dir}` | `docs/codebase-analysis/reading-order.md` | (optional: DDD analysis present → skips domain model discovery, enriches annotations) |
-| 3 | `/extract-requirements {reading-order-or-source-path}` | `docs/requirements/business-requirements.md`, `docs/requirements/technical-requirements.md` | Reading order guide, source directory, or empty for auto-discovery (optional: DDD analysis enriches output) |
-| 3b | `/extract-flows {requirements-dir}` | `docs/requirements/flow-catalog.md` | Project-specific business + technical requirements (required); DDD analysis (optional, enriches output) |
-| 4 | `/generalize-requirements {requirements-dir}` | `docs/generalized-requirements/*.md` | Business + technical requirements (required); original DDD analysis (optional, for terminology) |
-| 4b | `/generalize-ddd-analysis {generalized-requirements-dir}` | `docs/generalized-requirements/ddd-analysis.md` | Original DDD analysis + generalized business requirements + generalized technical requirements (all required) |
-| 4c | `/generalize-flows {generalized-requirements-dir}` | `docs/generalized-requirements/flow-catalog.md` | Project-specific flow catalog + generalized business requirements + generalized technical requirements (all required); generalized DDD analysis (optional, for terminology cross-reference) |
-| 5 | `/decompose-services {generalized-requirements-dir}` | `docs/generalized-requirements/service-decomposition.md` | Generalized requirements (required); generalized DDD analysis (optional, preferred) or original DDD analysis (optional, fallback); generalized flow catalog (optional, informs boundary decisions) |
-| 6 | `/generate-jira-tasks {generalized-requirements-dir}` | `docs/generalized-requirements/jira-tasks.*.md`, `docs/generalized-requirements/technical-requirements.observability-and-testing.md`, `docs/generalized-requirements/jira-checklist.observability.md` | Generalized requirements (required); service decomposition (recommended, warns and proceeds without); generalized DDD analysis (optional); generalized flow catalog (optional, enriches acceptance criteria) |
-| 7 | `/review-requirements {generalized-requirements-dir}` | `docs/generalized-requirements/review-findings.md` + fixes applied to all documents | Business requirements + technical requirements + Jira task files (required); observability requirements document (`technical-requirements.observability-and-testing.md`, required if tasks reference OBS-*/K6-* IDs); DDD analysis + service decomposition + flow catalog (optional) |
+| 1 | `/ddd-analysis {source-dir}` | `{output-base}/ddd-analysis.md` | Source code access |
+| 2 | `/analyze-codebase {source-dir}` | `{output-base}/codebase-analysis/reading-order.md` | (optional: DDD analysis present → skips domain model discovery, enriches annotations) |
+| 3 | `/extract-requirements {reading-order-or-source-path}` | `{output-base}/requirements/business-requirements.md`, `{output-base}/requirements/technical-requirements.md` | Reading order guide, source directory, or empty for auto-discovery (optional: DDD analysis enriches output) |
+| 3b | `/extract-flows {requirements-dir}` | `{output-base}/requirements/flow-catalog.md` | Project-specific business + technical requirements (required); DDD analysis (optional, enriches output) |
+| 4 | `/generalize-requirements {requirements-dir}` | `{output-base}/generalized-requirements/*.md` | Business + technical requirements (required); original DDD analysis (optional, for terminology) |
+| 4b | `/generalize-ddd-analysis {generalized-requirements-dir}` | `{output-base}/generalized-requirements/ddd-analysis.md` | Original DDD analysis + generalized business requirements + generalized technical requirements (all required) |
+| 4c | `/generalize-flows {generalized-requirements-dir}` | `{output-base}/generalized-requirements/flow-catalog.md` | Project-specific flow catalog + generalized business requirements + generalized technical requirements (all required); generalized DDD analysis (optional, for terminology cross-reference) |
+| 5 | `/decompose-services {generalized-requirements-dir}` | `{output-base}/generalized-requirements/service-decomposition.md` | Generalized requirements (required); generalized DDD analysis (optional, preferred) or original DDD analysis (optional, fallback); generalized flow catalog (optional, informs boundary decisions) |
+| 6 | `/generate-jira-tasks {generalized-requirements-dir}` | `{output-base}/generalized-requirements/jira-tasks.*.md`, `{output-base}/generalized-requirements/technical-requirements.observability-and-testing.md`, `{output-base}/generalized-requirements/jira-checklist.observability.md` | Generalized requirements (required); service decomposition (recommended, warns and proceeds without); generalized DDD analysis (optional); generalized flow catalog (optional, enriches acceptance criteria) |
+| 7 | `/review-requirements {generalized-requirements-dir}` | `{output-base}/generalized-requirements/review-findings.md` + fixes applied to all documents | Business requirements + technical requirements + Jira task files (required); observability requirements document (`technical-requirements.observability-and-testing.md`, required if tasks reference OBS-*/K6-* IDs); DDD analysis + service decomposition + flow catalog (optional) |
+| 8 | `/ingest-second-brain` | Second brain database updated | All pipeline stages complete (documents exist in Obsidian vault) |
 
 ### Quick Start (typical invocation)
+
+Where `{output-base}` is `$OBSIDIAN_VAULT/Pipeline/{project-name}/`. Read `~/.claude/.env` for `$OBSIDIAN_VAULT`, derive project name from `basename $(git rev-parse --show-toplevel)`.
 
 ```
 /ddd-analysis src/
 /analyze-codebase src/
-/extract-requirements docs/codebase-analysis/reading-order.md
-/extract-flows docs/requirements/
-/generalize-requirements docs/requirements/
-/generalize-ddd-analysis docs/generalized-requirements/
-/generalize-flows docs/generalized-requirements/
-/decompose-services docs/generalized-requirements/
-/generate-jira-tasks docs/generalized-requirements/
-/review-requirements docs/generalized-requirements/
+/extract-requirements {output-base}/codebase-analysis/reading-order.md
+/extract-flows {output-base}/requirements/
+/generalize-requirements {output-base}/requirements/
+/generalize-ddd-analysis {output-base}/generalized-requirements/
+/generalize-flows {output-base}/generalized-requirements/
+/decompose-services {output-base}/generalized-requirements/
+/generate-jira-tasks {output-base}/generalized-requirements/
+/review-requirements {output-base}/generalized-requirements/
+/ingest-second-brain
 ```
 
 ### Notes
 
-- **Stage 1 (DDD analysis)** is the foundation. Stages 2-3 check for `docs/ddd-analysis.md`. Stages 5-7 prefer the generalized version (`docs/generalized-requirements/ddd-analysis.md`) if Stage 4b was run, falling back to the original.
+- **Stage 1 (DDD analysis)** is the foundation. Stages 2-3 check for `{output-base}/ddd-analysis.md`. Stages 5-7 prefer the generalized version (`{output-base}/generalized-requirements/ddd-analysis.md`) if Stage 4b was run, falling back to the original.
 - **Stages 1-3** extract what IS in the code. **Stage 3b** catalogs behavioral flows from the project-specific requirements. **Stages 4-4c** generalize. **Stage 5** decomposes. **Stage 6** creates actionable tasks. **Stage 7** validates consistency.
 - **Stage 4b** is optional but recommended — it ensures the generalized DDD analysis uses the same terminology as all downstream documents, eliminating terminology divergence noise in Stage 7 reviews.
 - You can skip stages if artifacts already exist (e.g., skip to Stage 6 if you already have generalized requirements).
