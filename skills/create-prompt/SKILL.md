@@ -1,7 +1,7 @@
 ---
 name: create-prompt
 description: Create a task prompt when the work is clear and ready to implement
-allowed-tools: Read, Glob, Grep, Write, Bash(ls*), Bash(mkdir*), AskUserQuestion
+allowed-tools: Read, Glob, Grep, Write, Bash(ls*), Bash(mkdir*), Bash(python3*), AskUserQuestion
 argument-hint: <task description>
 user-invocable: true
 ---
@@ -29,12 +29,23 @@ If a dedicated slash command exists for the task type (e.g., `/ddd-analysis`, `/
    - `README.md`
    - Relevant source files: read files directly referenced in the task description. If the task mentions a module or feature, read its entry point and up to 3 related files. Do not exhaustively explore — use `/create-meta-prompt` if broader exploration is needed.
 
-2. **Clarify if needed** (1-2 questions max)
+2. **Query second brain for prior knowledge**
+   Run the recall script using the task description as the query:
+   ```bash
+   python3 ~/.claude/scripts/second-brain/recall.py "$ARGUMENTS" --limit 5
+   ```
+   If you can infer a project name from `CLAUDE.md` or the current repo, add `--project <name>`.
+   If the task clearly maps to a doc type (e.g., DDD analysis, requirements, data flows), add `--type <type>`.
+
+   - If the recall script fails (not installed, database unavailable, etc.), log the error and continue — second brain context is supplementary, not blocking.
+   - If results are returned, summarize the relevant findings and carry them forward as **Prior Knowledge** when generating the prompt in step 5.
+
+3. **Clarify if needed** (1-2 questions max)
    - What does success look like?
    - Any constraints or preferences?
    - Skip if obvious from context
 
-3. **Design checkpoints**
+4. **Design checkpoints**
    - Break work into incremental steps
    - Each checkpoint: implementation + unit tests for that checkpoint's code
    - All existing + new tests must pass at the end of each checkpoint
@@ -43,7 +54,7 @@ If a dedicated slash command exists for the task type (e.g., `/ddd-analysis`, `/
    - Exception: a checkpoint that is purely non-code work (documentation, configuration) does not need tests
    - Target 3-7 checkpoints. If more than 7 are needed, the task may be too large — consider splitting into multiple prompts or using `/create-meta-prompt` for better planning.
 
-4. **Write prompt** to `.prompts/NNN-name.md` (use lowercase-hyphenated format for the name, e.g., `001-add-user-validation.md`). Create `.prompts/` directory if it doesn't exist.
+5. **Write prompt** to `.prompts/NNN-name.md` (use lowercase-hyphenated format for the name, e.g., `001-add-user-validation.md`). Create `.prompts/` directory if it doesn't exist.
 
    **Important**: Do NOT use names ending in `-research` or `-plan` — these suffixes are reserved for meta-prompt directories and would cause ambiguity in `/run-prompt` resolution.
 
@@ -59,6 +70,11 @@ If a dedicated slash command exists for the task type (e.g., `/ddd-analysis`, `/
 - Guidelines: `CLAUDE.md`
 - Key files: [relevant paths]
 - Stack: [if relevant]
+
+## Prior Knowledge
+[If second brain returned results, include a summary here. Otherwise omit this section.]
+- [Key insight from past project documentation]
+- [Relevant patterns, decisions, or constraints discovered]
 
 ## Checkpoints
 

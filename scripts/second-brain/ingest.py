@@ -3,14 +3,19 @@
 ingest.py - Ingest project documentation into the second brain
 
 Usage:
-    python ingest.py <project_docs_path> <project_name>
+    python ingest.py <project_docs_path> <project_name> [--append]
+
+By default, existing data for the project is deleted before ingesting.
+Use --append to keep existing data and add new chunks alongside it.
 
 Example:
     python ingest.py ~/dev/4poker-code/backend/identity-server/docs identity-server
+    python ingest.py ~/dev/myproject/docs my-project --append
 """
 
 import sys
 import re
+import argparse
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
 from db import connect, TABLE
@@ -75,13 +80,15 @@ def chunk_by_heading(content: str, min_chunk_size: int = 100) -> list[dict]:
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: ingest.py <project_docs_path> <project_name>")
-        print("Example: ingest.py ~/dev/myproject/docs my-project")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Ingest project documentation into the second brain")
+    parser.add_argument("docs_path", help="Path to the project docs directory")
+    parser.add_argument("project_name", help="Project name for tagging")
+    parser.add_argument("--append", action="store_true",
+                        help="Keep existing data instead of replacing it")
+    args = parser.parse_args()
 
-    docs_path = Path(sys.argv[1]).expanduser().resolve()
-    project_name = sys.argv[2]
+    docs_path = Path(args.docs_path).expanduser().resolve()
+    project_name = args.project_name
 
     if not docs_path.exists():
         print(f"Error: docs path does not exist: {docs_path}")
@@ -93,6 +100,11 @@ def main():
 
     model = SentenceTransformer(EMBEDDING_MODEL)
     conn = connect()
+
+    if not args.append:
+        result = conn.execute(f"DELETE FROM {TABLE} WHERE project_name = %s", (project_name,))
+        if result.rowcount > 0:
+            print(f"Cleared {result.rowcount} existing rows for '{project_name}'")
 
     # Find all markdown files recursively
     md_files = list(docs_path.rglob("*.md"))

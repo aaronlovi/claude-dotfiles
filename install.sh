@@ -123,13 +123,22 @@ for skill_dir in "$SCRIPT_DIR"/skills/*/; do
     install_dir "$SCRIPT_DIR/skills/$name" "$TARGET_DIR/skills/$name"
 done
 
-# --- Scripts ---
+# --- Scripts (top-level files) ---
 echo ""
 echo "Installing scripts..."
 mkdir -p "$TARGET_DIR/scripts"
-for script in "$SCRIPT_DIR"/scripts/*.sh "$SCRIPT_DIR"/scripts/*.py; do
+for script in "$SCRIPT_DIR"/scripts/*.sh; do
+    [[ -e "$script" ]] || continue
     name="$(basename "$script")"
     install_file "$script" "$TARGET_DIR/scripts/$name"
+done
+
+# --- Script subdirectories ---
+for script_sub in "$SCRIPT_DIR"/scripts/*/; do
+    [[ -d "$script_sub" ]] || continue
+    name="$(basename "$script_sub")"
+    [[ "$name" == "review-logs" ]] && continue
+    install_dir "$script_sub" "$TARGET_DIR/scripts/$name"
 done
 
 # --- Summary ---
@@ -145,4 +154,5 @@ echo "  - CLAUDE.md (global preferences)"
 echo "  - settings.json (allowed tools + env)"
 echo "  - $(ls "$SCRIPT_DIR"/commands/*.md | wc -l) slash commands"
 echo "  - $(ls -d "$SCRIPT_DIR"/skills/*/ | wc -l) skills"
-echo "  - $(ls "$SCRIPT_DIR"/scripts/*.sh "$SCRIPT_DIR"/scripts/*.py 2>/dev/null | wc -l) script(s)"
+echo "  - $(ls "$SCRIPT_DIR"/scripts/*.sh 2>/dev/null | wc -l) script(s)"
+echo "  - $(ls -d "$SCRIPT_DIR"/scripts/*/ 2>/dev/null | grep -cv review-logs) script subdirectory(s)"

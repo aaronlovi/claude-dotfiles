@@ -111,13 +111,14 @@ The embedding dimension (384) matches the `all-MiniLM-L6-v2` model used by `inge
 
 ### 6.1. Scripts - ingest.py
 
-Ingest markdown documentation into the knowledge base. Splits files by heading into chunks and generates embeddings.
+Ingest markdown documentation into the knowledge base. Splits files by heading into chunks and generates embeddings. By default, existing data for the project is deleted before ingesting so re-running always gives a clean state.
 
 ```bash
 python ingest.py <project_docs_path> <project_name>
 
-# Example
+# Examples
 python ingest.py ~/dev/myproject/docs my-project
+python ingest.py ~/dev/myproject/docs my-project --append  # keep existing data
 ```
 
 Documents are auto-classified by filename pattern:
