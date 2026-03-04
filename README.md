@@ -9,6 +9,7 @@ Global configuration, slash commands, and skills for [Claude Code](https://docs.
 | `CLAUDE.md` | Global preferences (Mermaid diagrams, numbered headings, ToC conventions) |
 | `settings.json` | Allowed tools and environment variables |
 | `commands/` | 14 slash commands — a requirements-to-Jira pipeline plus second brain integration |
+| `agents/` | Custom agents for orchestrating multi-stage workflows |
 | `skills/` | 7 skills — prompt management, code review, and task wrap-up |
 | `scripts/` | Second brain management scripts and maintenance utilities |
 
@@ -44,6 +45,12 @@ Commands are listed in pipeline stage order. Run `/pipeline` to see the full seq
 | `review-squashed-changes` | Review all code changes in a squashed commit on top of origin/main |
 | `review-copilot-comments` | Triage GitHub Copilot code review comments on the current PR |
 | `wrap-up` | Final sweep of a completed task — checks for loose ends and fixes them |
+
+### Agents
+
+| Agent | Purpose |
+|-------|---------|
+| `pipeline-runner` | Run the requirements pipeline (stages 1-8) end-to-end on a codebase, with optional start/end stage bounds |
 
 ## Installation
 

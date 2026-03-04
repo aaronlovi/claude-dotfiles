@@ -124,6 +124,16 @@ for skill_dir in "$SCRIPT_DIR"/skills/*/; do
     install_dir "$SCRIPT_DIR/skills/$name" "$TARGET_DIR/skills/$name"
 done
 
+# --- Agents ---
+echo ""
+echo "Installing agents..."
+mkdir -p "$TARGET_DIR/agents"
+for agent in "$SCRIPT_DIR"/agents/*.md; do
+    [[ -e "$agent" ]] || continue
+    name="$(basename "$agent")"
+    install_file "$agent" "$TARGET_DIR/agents/$name"
+done
+
 # --- Rules (path-scoped CLAUDE.md fragments) ---
 echo ""
 echo "Installing rules..."
@@ -165,6 +175,7 @@ echo "  - CLAUDE.md (global preferences)"
 echo "  - settings.json (allowed tools + env)"
 echo "  - $(ls "$SCRIPT_DIR"/commands/*.md | wc -l) slash commands"
 echo "  - $(ls -d "$SCRIPT_DIR"/skills/*/ | wc -l) skills"
+echo "  - $(ls "$SCRIPT_DIR"/agents/*.md 2>/dev/null | wc -l) agent(s)"
 echo "  - $(ls "$SCRIPT_DIR"/rules/*.md 2>/dev/null | wc -l) rule(s)"
 echo "  - $(ls "$SCRIPT_DIR"/scripts/*.sh 2>/dev/null | wc -l) script(s)"
 echo "  - $(ls -d "$SCRIPT_DIR"/scripts/*/ 2>/dev/null | grep -cv review-logs) script subdirectory(s)"
