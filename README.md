@@ -8,7 +8,7 @@ Global configuration, slash commands, and skills for [Claude Code](https://docs.
 |------|-------------|
 | `CLAUDE.md` | Global preferences (Mermaid diagrams, numbered headings, ToC conventions) |
 | `settings.json` | Allowed tools and environment variables |
-| `commands/` | 11 slash commands for a requirements-to-Jira pipeline |
+| `commands/` | 14 slash commands for a requirements-to-Jira pipeline |
 | `skills/` | 4 skills for prompt management |
 | `scripts/` | Maintenance scripts for reviewing/iterating on slash commands |
 
@@ -26,6 +26,9 @@ Global configuration, slash commands, and skills for [Claude Code](https://docs.
 | `/generalize-flows` | Create platform-agnostic flow catalog |
 | `/generalize-ddd-analysis` | Create platform-agnostic DDD analysis |
 | `/analyze-codebase` | Produce a reading-order guide for a codebase |
+| `/ingest-second-brain` | Ingest pipeline documents into the second brain |
+| `/recall` | Query the second brain for relevant context |
+| `/self-review-protocol` | Self-review convergence protocol for output quality |
 | `/pipeline` | Show the full pipeline stage order |
 
 ### Skills
@@ -44,6 +47,8 @@ git clone https://github.com/aaronlovi/claude-dotfiles.git ~/dev/claude-dotfiles
 cd ~/dev/claude-dotfiles
 ./install.sh
 ```
+
+After installation, copy `.env.example` to `~/.claude/.env` and configure machine-specific settings (e.g., `OBSIDIAN_VAULT` path for pipeline output).
 
 ### Symlink mode (default)
 

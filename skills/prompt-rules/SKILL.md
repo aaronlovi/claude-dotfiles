@@ -31,7 +31,7 @@ Decision tree:
 
 If unsure, start with `/create-meta-prompt` — the research phase will clarify scope. If you need to read more than 5 files to understand the scope, or if there are multiple viable approaches, prefer `/create-meta-prompt` over `/create-prompt`.
 
-**Note:** Pipeline commands like `/ddd-analysis`, `/extract-requirements`, `/generate-jira-tasks`, etc. are standalone workflow commands that do not use the `.prompts/` directory or checkpoint system. They have their own output conventions in `docs/`. See `/pipeline` for the full list.
+**Note:** Pipeline commands like `/ddd-analysis`, `/extract-requirements`, `/generate-jira-tasks`, etc. are standalone workflow commands that do not use the `.prompts/` directory or checkpoint system. They write output to the Obsidian vault (see `/pipeline` for details). See `/pipeline` for the full list.
 
 ## File Locations
 

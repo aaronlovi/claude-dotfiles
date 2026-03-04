@@ -7,19 +7,30 @@ You are a senior architect generalizing requirements from a specific domain impl
 
 ## Input
 
-$ARGUMENTS should be the path to the requirements documents to generalize (e.g., `docs/requirements/`). If empty, look for requirements in `docs/requirements/`. If the target path does not exist, stop and tell the user.
+$ARGUMENTS should be the path to the requirements documents to generalize (e.g., `{output-base}/requirements/`). If empty, look for requirements in `{output-base}/requirements/`. If the target path does not exist, stop and tell the user.
 
 ## Prerequisites
 
 **Required:** Business requirements (`business-requirements.md`) and technical requirements (`technical-requirements.md`) in the input directory. If either is missing, stop and tell the user to run `/extract-requirements` first.
 
-**Optional:** DDD analysis (`docs/ddd-analysis.md`). This command always uses the ORIGINAL DDD analysis (not the generalized version), because the terminology mapping is built by comparing original domain terms against generalized equivalents. If present:
+**Optional:** DDD analysis (`{output-base}/ddd-analysis.md`). This command always uses the ORIGINAL DDD analysis (not the generalized version), because the terminology mapping is built by comparing original domain terms against generalized equivalents. If present:
 - Use the ubiquitous language glossary to build the terminology mapping table — each domain-specific term should have a generalized equivalent or be marked as excluded.
 - Use the bounded context analysis to identify which subdomains should be extracted to separate services.
 - Use the context mapping patterns to preserve integration architecture during generalization.
 - Do NOT modify the original DDD analysis document — it captures the original domain model. The terminology mapping table in THIS command's output serves as the bridge between original and generalized terms.
 
 A separate command (`/generalize-ddd-analysis`) can be run after this one to produce a generalized version of the DDD analysis using the terminology mapping you create here.
+
+## Output Location
+
+Before writing any output, determine the output base directory:
+
+1. Read `~/.claude/.env` to get the `OBSIDIAN_VAULT` path.
+2. Derive the project name: `basename $(git rev-parse --show-toplevel)`
+3. Set output base: `$OBSIDIAN_VAULT/Pipeline/{project-name}/`
+4. Create the output directory with `mkdir -p` if it doesn't exist.
+
+All output paths below are relative to this base directory (not the current working directory).
 
 ## Process
 
@@ -111,14 +122,14 @@ For requirements that belong to a different bounded context:
 
 ## Output Format
 
-Create `docs/generalized-requirements/` if it doesn't exist. Write generalized versions of the requirement documents:
+Create `{output-base}/generalized-requirements/` if it doesn't exist. Write generalized versions of the requirement documents:
 
-- `docs/generalized-requirements/business-requirements.md`
-- `docs/generalized-requirements/technical-requirements.md`
+- `{output-base}/generalized-requirements/business-requirements.md`
+- `{output-base}/generalized-requirements/technical-requirements.md`
 
 Use this document structure for each file:
 
-### `docs/generalized-requirements/business-requirements.md`
+### `{output-base}/generalized-requirements/business-requirements.md`
 ```
 # Business Requirements: {Generalized Service Name}
 
@@ -178,7 +189,7 @@ Use this document structure for each file:
 |---|---|---|
 ```
 
-### `docs/generalized-requirements/technical-requirements.md`
+### `{output-base}/generalized-requirements/technical-requirements.md`
 ```
 # Technical Requirements: {Generalized Service Name}
 
@@ -247,4 +258,4 @@ After producing the output artifacts, follow the self-review convergence protoco
 - For requirements with domain-specific VALUES but universal CONCEPTS, keep the requirement and mark specific values as "configurable (default: {original value})".
 - Preserve edge cases and hard-won business rules — these are the most valuable parts of the requirements.
 - This command produces a single synthesized output and does not support Agent Teams parallelization.
-- **Next step**: If a DDD analysis exists (`docs/ddd-analysis.md`), run `/generalize-ddd-analysis`. Otherwise, if a flow catalog exists (`docs/requirements/flow-catalog.md`), run `/generalize-flows`. Otherwise, skip to `/decompose-services`.
+- **Next step**: If a DDD analysis exists (`{output-base}/ddd-analysis.md`), run `/generalize-ddd-analysis`. Otherwise, if a flow catalog exists (`{output-base}/requirements/flow-catalog.md`), run `/generalize-flows`. Otherwise, skip to `/decompose-services`.

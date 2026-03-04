@@ -13,7 +13,7 @@ If the target path does not exist or contains no source files, stop and tell the
 
 ## Prerequisites
 
-**Optional:** DDD analysis (`docs/ddd-analysis.md`). If present:
+**Optional:** DDD analysis (`{output-base}/ddd-analysis.md`). If present:
 - Read it first. Use the ubiquitous language, bounded contexts, and aggregate boundaries to enrich the reading order annotations. If the DDD analysis is very large, prioritize the Ubiquitous Language, Bounded Contexts, and Tactical Patterns > Aggregates sections — these are most relevant for reading order annotation.
 - Reference domain concepts by name when annotating files (e.g., "This file implements the User Account Aggregate's uniqueness invariant").
 - Skip Phase 3 (Domain Model Discovery) entirely — the DDD analysis already covers this in depth. Instead, cross-reference files against the DDD document's tactical patterns section.
@@ -39,11 +39,22 @@ Create a team called `analyze-codebase` with 2 teammates:
 2. **Spawn both teammates** in parallel. Each receives: the codebase path, their assigned discovery items, and instructions to report structured findings (file lists, key patterns observed, relationships).
 3. **Teammates report findings** back to the lead.
 4. **Lead executes Phases 3-4** (Phase 3 is cross-referencing only if DDD analysis exists, or full domain model discovery if not; Phase 4 is reading order construction) using the combined structural knowledge from both teammates.
-5. **Lead writes the final output** to `docs/codebase-analysis/reading-order.md`.
+5. **Lead writes the final output** to `{output-base}/codebase-analysis/reading-order.md`.
 
 Each teammate should be spawned as a `general-purpose` subagent with a clear prompt listing: the codebase path, their assigned discovery items (copy from the Process section), the DDD analysis context (if present), and instructions to report structured findings (file lists, key patterns observed, relationships). Teammates only read and search files (not modify anything) — the lead handles all output writing. If a teammate fails or returns incomplete results, the lead should complete that phase's work directly rather than re-spawning.
 
 ---
+
+## Output Location
+
+Before writing any output, determine the output base directory:
+
+1. Read `~/.claude/.env` to get the `OBSIDIAN_VAULT` path.
+2. Derive the project name: `basename $(git rev-parse --show-toplevel)`
+3. Set output base: `$OBSIDIAN_VAULT/Pipeline/{project-name}/`
+4. Create the output directory with `mkdir -p` if it doesn't exist.
+
+All output paths below are relative to this base directory (not the current working directory).
 
 ## Process
 
@@ -95,7 +106,7 @@ For each file in the reading order, provide:
 
 ## Output Format
 
-Create the output directory (`docs/codebase-analysis/`) if it does not exist, then write to `docs/codebase-analysis/reading-order.md` with this structure:
+Create the output directory (`{output-base}/codebase-analysis/`) if it does not exist, then write to `{output-base}/codebase-analysis/reading-order.md` with this structure:
 
 ````
 # Codebase Reading Order: {Service Name}

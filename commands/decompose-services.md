@@ -7,21 +7,32 @@ You are a domain-driven design expert analyzing requirements to identify optimal
 
 ## Input
 
-$ARGUMENTS should be the path to generalized requirements (e.g., `docs/generalized-requirements/`). If empty, look for `docs/generalized-requirements/`. If the target path does not exist, stop and tell the user.
+$ARGUMENTS should be the path to generalized requirements (e.g., `{output-base}/generalized-requirements/`). If empty, look for `{output-base}/generalized-requirements/`. If the target path does not exist, stop and tell the user.
 
 ## Prerequisites
 
 **Required:** Generalized business and technical requirements in the input directory. If missing, stop and tell the user to run `/generalize-requirements` first.
 
-**Optional:** Flow catalog (`docs/generalized-requirements/flow-catalog.md`). If present, use the flow interaction matrix and cross-domain flows to inform service boundary decisions — flows that span multiple domain areas suggest integration points between services.
+**Optional:** Flow catalog (`{output-base}/generalized-requirements/flow-catalog.md`). If present, use the flow interaction matrix and cross-domain flows to inform service boundary decisions — flows that span multiple domain areas suggest integration points between services.
 
-**Optional:** DDD analysis. Prefer the generalized version (`docs/generalized-requirements/ddd-analysis.md`) if it exists; fall back to the original (`docs/ddd-analysis.md`). If present:
+**Optional:** DDD analysis. Prefer the generalized version (`{output-base}/generalized-requirements/ddd-analysis.md`) if it exists; fall back to the original (`{output-base}/ddd-analysis.md`). If present:
 - Use the bounded context section as the starting point — it already identifies context boundaries and their rationale.
 - Use the context mapping section to establish integration patterns between services.
 - Use the aggregate boundaries to validate that proposed service splits don't break transactional consistency.
 - Use the "Potential Subdomain Separations" analysis if it exists.
 - If your decomposition differs from the DDD analysis's bounded context recommendations, document the divergence and rationale in the output — do NOT modify the DDD analysis document.
 - If using the original (non-generalized) DDD analysis, be aware it uses pre-generalization terminology. Use the terminology mapping from the generalized requirements' traceability appendices when cross-referencing.
+
+## Output Location
+
+Before writing any output, determine the output base directory:
+
+1. Read `~/.claude/.env` to get the `OBSIDIAN_VAULT` path.
+2. Derive the project name: `basename $(git rev-parse --show-toplevel)`
+3. Set output base: `$OBSIDIAN_VAULT/Pipeline/{project-name}/`
+4. Create the output directory with `mkdir -p` if it doesn't exist.
+
+All output paths below are relative to this base directory (not the current working directory).
 
 ## Process
 
@@ -82,7 +93,7 @@ Determine which service should be built first:
 
 ## Output Format
 
-Write to `docs/generalized-requirements/service-decomposition.md`:
+Write to `{output-base}/generalized-requirements/service-decomposition.md`:
 
 ````
 # Service Decomposition

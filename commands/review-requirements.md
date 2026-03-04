@@ -7,16 +7,16 @@ You are a meticulous quality reviewer performing a consistency audit across all 
 
 ## Input
 
-$ARGUMENTS should be the path to the requirements directory (e.g., `docs/generalized-requirements/`). If empty, look for `docs/generalized-requirements/` first, then `docs/requirements/` (this command can review either generalized or project-specific requirements). If the target path does not exist, stop and tell the user.
+$ARGUMENTS should be the path to the requirements directory (e.g., `{output-base}/generalized-requirements/`). If empty, look for `{output-base}/generalized-requirements/` first, then `{output-base}/requirements/` (this command can review either generalized or project-specific requirements). If the target path does not exist, stop and tell the user.
 
 ## Prerequisites
 
 **Required:** At minimum, the requirements directory must contain business requirements, technical requirements, and at least one Jira task file. If the Jira task files reference OBS-* or K6-* IDs, the observability requirements document (`technical-requirements.observability-and-testing.md`) must also be present. If any of these are missing, stop and tell the user which documents are needed.
 
 **Optional (enrich review if present):**
-- **DDD analysis**: Prefer the generalized version (`docs/generalized-requirements/ddd-analysis.md`) if it exists; fall back to the original (`docs/ddd-analysis.md`). Verify that ubiquitous language terms are used consistently in requirements and Jira tasks. Verify that bounded contexts align with service decomposition. Verify that state machines from the DDD analysis are fully covered by requirements. If using the original (non-generalized) DDD analysis, expect and tolerate terminology divergences documented in the traceability appendices.
-- **Service decomposition** (`docs/generalized-requirements/service-decomposition.md`): Verify cross-service dependencies are consistent between the decomposition document and Jira task documents.
-- **Flow catalog** (`docs/generalized-requirements/flow-catalog.md` or `docs/requirements/flow-catalog.md`): Verify requirement coverage and terminology consistency.
+- **DDD analysis**: Prefer the generalized version (`{output-base}/generalized-requirements/ddd-analysis.md`) if it exists; fall back to the original (`{output-base}/ddd-analysis.md`). Verify that ubiquitous language terms are used consistently in requirements and Jira tasks. Verify that bounded contexts align with service decomposition. Verify that state machines from the DDD analysis are fully covered by requirements. If using the original (non-generalized) DDD analysis, expect and tolerate terminology divergences documented in the traceability appendices.
+- **Service decomposition** (`{output-base}/generalized-requirements/service-decomposition.md`): Verify cross-service dependencies are consistent between the decomposition document and Jira task documents.
+- **Flow catalog** (`{output-base}/generalized-requirements/flow-catalog.md` or `{output-base}/requirements/flow-catalog.md`): Verify requirement coverage and terminology consistency.
 
 ## Agent Teams Mode (Optional)
 
@@ -47,6 +47,17 @@ Each teammate should be spawned as a `general-purpose` subagent with a clear pro
 
 ---
 
+## Output Location
+
+Before writing any output, determine the output base directory:
+
+1. Read `~/.claude/.env` to get the `OBSIDIAN_VAULT` path.
+2. Derive the project name: `basename $(git rev-parse --show-toplevel)`
+3. Set output base: `$OBSIDIAN_VAULT/Pipeline/{project-name}/`
+4. Create the output directory with `mkdir -p` if it doesn't exist.
+
+All output paths below are relative to this base directory (not the current working directory).
+
 ## Process
 
 Read ALL documents in the requirements directory (and any prerequisite documents above). Then perform these checks:
@@ -57,15 +68,15 @@ For every ID referenced in ANY document, verify it exists in the corresponding s
 
 | ID Prefix | Defined In |
 |-----------|-----------|
-| BR-* | `docs/requirements/business-requirements.md` |
-| TR-* | `docs/requirements/technical-requirements.md` |
-| GBR-* | `docs/generalized-requirements/business-requirements.md` |
-| GTR-* | `docs/generalized-requirements/technical-requirements.md` |
-| OBS-* | `docs/generalized-requirements/technical-requirements.observability-and-testing.md` |
-| K6-* | `docs/generalized-requirements/technical-requirements.observability-and-testing.md` |
-| {SVC}-{###} | `docs/generalized-requirements/jira-tasks.{service}.md` (e.g., IAM-001, CSH-001). Task IDs use zero-padded 3-digit numbers. |
+| BR-* | `{output-base}/requirements/business-requirements.md` |
+| TR-* | `{output-base}/requirements/technical-requirements.md` |
+| GBR-* | `{output-base}/generalized-requirements/business-requirements.md` |
+| GTR-* | `{output-base}/generalized-requirements/technical-requirements.md` |
+| OBS-* | `{output-base}/generalized-requirements/technical-requirements.observability-and-testing.md` |
+| K6-* | `{output-base}/generalized-requirements/technical-requirements.observability-and-testing.md` |
+| {SVC}-{###} | `{output-base}/generalized-requirements/jira-tasks.{service}.md` (e.g., IAM-001, CSH-001). Task IDs use zero-padded 3-digit numbers. |
 
-When reviewing non-generalized documents (`docs/requirements/`), only validate BR-* and TR-* prefixes. OBS-*, K6-*, and GBR-*/GTR-* prefixes only apply to generalized document sets.
+When reviewing non-generalized documents (`{output-base}/requirements/`), only validate BR-* and TR-* prefixes. OBS-*, K6-*, and GBR-*/GTR-* prefixes only apply to generalized document sets.
 
 Also validate OBS-* and K6-* references in `jira-checklist.observability.md` (if it exists) against the observability requirements document.
 
@@ -103,7 +114,7 @@ Also check:
 - The Jira task's phase assignment is authoritative (it reflects full dependency analysis). If a requirement's phase differs from its covering task's phase, update the requirement's phase to match the task, not vice versa.
 - Flag any requirement whose phase doesn't match its covering task's phase.
 - Also verify that the Summary Table's Phase column matches the section heading (`## Phase N:`) for each task. If they disagree, update the Summary Table to match the section heading.
-- If the requirements documents do not include explicit `**Phase:**` fields (possible for pre-generalization `docs/requirements/` documents), skip this check and note: "Phase assignment check skipped — requirements documents do not include phase fields."
+- If the requirements documents do not include explicit `**Phase:**` fields (possible for pre-generalization `{output-base}/requirements/` documents), skip this check and note: "Phase assignment check skipped — requirements documents do not include phase fields."
 - OBS-* and K6-* requirements in `technical-requirements.observability-and-testing.md` do not use `**Phase:**` fields by design — exempt them from this check. Apply phase assignment validation only to GBR-* and GTR-* requirements.
 
 ### Check 5: Metric Naming Consistency
@@ -127,7 +138,7 @@ For cross-service dependencies:
 
 ### Check 7: DDD Analysis Alignment (if a DDD analysis exists)
 
-Prefer the generalized DDD analysis (`docs/generalized-requirements/ddd-analysis.md`) if it exists; fall back to the original (`docs/ddd-analysis.md`). If using the original, expect and tolerate terminology divergences documented in the traceability appendices.
+Prefer the generalized DDD analysis (`{output-base}/generalized-requirements/ddd-analysis.md`) if it exists; fall back to the original (`{output-base}/ddd-analysis.md`). If using the original, expect and tolerate terminology divergences documented in the traceability appendices.
 
 - Every ubiquitous language term used in requirements and Jira tasks matches the DDD glossary. Focus on terms that appear in requirement titles and Jira task titles. Description-body synonyms are acceptable if the title uses the canonical DDD glossary term. Flag only exact mismatches (e.g., "user account" in requirements vs. "account" in DDD glossary), not stylistic variations.
 - Every state machine in the DDD analysis is covered by at least one requirement and one Jira task.
@@ -197,7 +208,7 @@ If no flow catalog exists, skip this check.
 
 ## Output Format
 
-Write findings to `docs/generalized-requirements/review-findings.md` (or `docs/requirements/review-findings.md` if reviewing non-generalized documents). The file should contain these sections in order: `## Findings` (numbered list), then `## Convergence Log` (pass tracking table).
+Write findings to `{output-base}/generalized-requirements/review-findings.md` (or `{output-base}/requirements/review-findings.md` if reviewing non-generalized documents). The file should contain these sections in order: `## Findings` (numbered list), then `## Convergence Log` (pass tracking table).
 
 Report findings as a numbered list:
 

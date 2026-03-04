@@ -8,17 +8,17 @@ You are a senior business analyst and software architect extracting requirements
 ## Input
 
 $ARGUMENTS should be one of:
-- A path to a reading order guide (e.g., `docs/codebase-analysis/reading-order.md`)
+- A path to a reading order guide (e.g., `{output-base}/codebase-analysis/reading-order.md`)
 - A path to a source directory to analyze (a minimal structural survey will be performed to establish a reading order; for best results, run `/analyze-codebase` first)
-- Empty (will look for an existing reading order guide in `docs/codebase-analysis/`; if none exists, falls back to analyzing the current working directory as a source directory)
+- Empty (will look for an existing reading order guide in `{output-base}/codebase-analysis/`; if none exists, falls back to analyzing the current working directory as a source directory)
 
 If the specified path does not exist, stop and tell the user. If a directory is provided, check for `reading-order.md` inside it before treating it as a source directory. If a file is provided but doesn't appear to be a reading order guide (no "Reading Order" or "Group" headings), treat its **parent directory** as a source directory path instead.
 
 ## Prerequisites
 
-**Optional:** DDD analysis (`docs/ddd-analysis.md`). If present, use the ubiquitous language as the basis for naming requirements. Use bounded context boundaries to organize requirement domains. Use state machines to identify workflow requirements. Reference aggregate invariants as business rules. Every business requirement should trace to at least one ubiquitous language term, and the domain groupings should align with the bounded contexts identified there.
+**Optional:** DDD analysis (`{output-base}/ddd-analysis.md`). If present, use the ubiquitous language as the basis for naming requirements. Use bounded context boundaries to organize requirement domains. Use state machines to identify workflow requirements. Reference aggregate invariants as business rules. Every business requirement should trace to at least one ubiquitous language term, and the domain groupings should align with the bounded contexts identified there.
 
-**Optional:** Reading order (`docs/codebase-analysis/reading-order.md`). If present, follow it instead of doing ad-hoc file discovery.
+**Optional:** Reading order (`{output-base}/codebase-analysis/reading-order.md`). If present, follow it instead of doing ad-hoc file discovery.
 
 ## Agent Teams Mode (Optional)
 
@@ -41,11 +41,22 @@ Create a team called `extract-requirements` with 2 teammates:
 2. **Spawn both teammates** in parallel. Each receives: the reading order (or codebase path), their specific extraction focus, the corresponding output format template (business requirements format for business-extractor, technical requirements format for technical-extractor), and the DDD analysis context (if present).
 3. **Teammates report draft requirements** back to the lead.
 4. **Lead merges teammate outputs**: deduplicates requirements that appear in both submissions, resolves any ID numbering conflicts (renumber so all IDs are sequential within each document), and verifies preliminary phase assignments are consistent. Then executes **Phase 4** (Cross-Reference): ensures every business requirement maps to at least one technical requirement or is self-contained, identifies gaps (code with no clear business justification), and identifies implicit requirements enforced only by database constraints or stored procedures.
-5. **Lead writes final output** to `docs/requirements/business-requirements.md` and `docs/requirements/technical-requirements.md`.
+5. **Lead writes final output** to `{output-base}/requirements/business-requirements.md` and `{output-base}/requirements/technical-requirements.md`.
 
 Each teammate should be spawned as a `general-purpose` subagent with a clear prompt listing: the reading order (or codebase path), their specific extraction focus, the corresponding output format template (business requirements format for business-extractor, technical requirements format for technical-extractor), and the DDD analysis context (if present). Teammates only read files and report findings — the lead handles all output writing. If a teammate fails or returns incomplete results, the lead should complete that phase's work directly rather than re-spawning.
 
 ---
+
+## Output Location
+
+Before writing any output, determine the output base directory:
+
+1. Read `~/.claude/.env` to get the `OBSIDIAN_VAULT` path.
+2. Derive the project name: `basename $(git rev-parse --show-toplevel)`
+3. Set output base: `$OBSIDIAN_VAULT/Pipeline/{project-name}/`
+4. Create the output directory with `mkdir -p` if it doesn't exist.
+
+All output paths below are relative to this base directory (not the current working directory).
 
 ## Process
 
@@ -104,9 +115,9 @@ For each requirement:
 
 ## Output Format
 
-Create `docs/requirements/` if it doesn't exist, then write two files:
+Create `{output-base}/requirements/` if it doesn't exist, then write two files:
 
-### `docs/requirements/business-requirements.md`
+### `{output-base}/requirements/business-requirements.md`
 ```
 # Business Requirements: {Service Name}
 
@@ -141,7 +152,7 @@ Create `docs/requirements/` if it doesn't exist, then write two files:
 ...
 ```
 
-### `docs/requirements/technical-requirements.md`
+### `{output-base}/requirements/technical-requirements.md`
 ```
 # Technical Requirements: {Service Name}
 
@@ -183,4 +194,4 @@ After producing the output artifacts, follow the self-review convergence protoco
 - Include edge cases you find in the code — they represent hard-won lessons.
 - If business logic lives in stored procedures or database functions, those are PRIMARY SOURCES. Read them carefully.
 - Flag any contradictions between code behavior and comments/documentation.
-- **Next step**: Run `/extract-flows docs/requirements/` to catalog major system flows (optional but recommended before Stage 4). If skipping flows, proceed directly to `/generalize-requirements docs/requirements/`.
+- **Next step**: Run `/extract-flows {output-base}/requirements/` to catalog major system flows (optional but recommended before Stage 4). If skipping flows, proceed directly to `/generalize-requirements {output-base}/requirements/`.
