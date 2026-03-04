@@ -37,7 +37,7 @@ Workflow: **Research** → **Plan** → **Implement** (using plan directly)
    If you can infer a project name from `CLAUDE.md` or the current repo, add `--project <name>`.
    If the task clearly maps to a doc type (e.g., DDD analysis, requirements, data flows), add `--type <type>`.
 
-   - If the recall script fails (not installed, Supabase unavailable, etc.), log the error and continue — second brain context is supplementary, not blocking.
+   - If the recall script fails (not installed, database unavailable, etc.), log the error and continue — second brain context is supplementary, not blocking.
    - If results are returned, summarize the relevant findings and carry them forward as **Prior Knowledge** when generating the prompt in step 6.
 
 3. **Check for existing workflows**

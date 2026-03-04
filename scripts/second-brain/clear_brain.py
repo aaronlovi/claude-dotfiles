@@ -10,13 +10,7 @@ Usage:
 
 import sys
 import argparse
-from supabase import create_client
-
-# ── Configuration ─────────────────────────────────────────────────────────────
-
-SUPABASE_URL = "http://localhost:8000"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE"
-TABLE_NAME = "project_knowledge"
+from db import connect, TABLE
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
@@ -26,9 +20,6 @@ def main():
     parser.add_argument("--force", action="store_true", help="Skip confirmation prompt")
     args = parser.parse_args()
 
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-    # Describe what will be deleted
     if args.project:
         target = f"all documents for project '{args.project}'"
     else:
@@ -40,17 +31,15 @@ def main():
             print("Aborted.")
             sys.exit(0)
 
-    # Delete rows
-    query = supabase.table(TABLE_NAME).delete()
-    if args.project:
-        query = query.eq("project_name", args.project)
-    else:
-        # Supabase requires a filter; match all rows via id > 0
-        query = query.gt("id", 0)
+    conn = connect()
 
-    result = query.execute()
-    count = len(result.data) if result.data else 0
-    print(f"Deleted {count} rows.")
+    if args.project:
+        result = conn.execute(f"DELETE FROM {TABLE} WHERE project_name = %s", (args.project,))
+    else:
+        result = conn.execute(f"DELETE FROM {TABLE}")
+
+    print(f"Deleted {result.rowcount} rows.")
+    conn.close()
 
 if __name__ == "__main__":
     main()

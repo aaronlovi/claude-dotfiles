@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ingest.py - Ingest project documentation into Supabase second brain
+ingest.py - Ingest project documentation into the second brain
 
 Usage:
     python ingest.py <project_docs_path> <project_name>
@@ -10,18 +10,12 @@ Example:
 """
 
 import sys
-import os
 import re
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
-from supabase import create_client
+from db import connect, TABLE
 
-# ── Configuration ────────────────────────────────────────────────────────────
-
-SUPABASE_URL = "http://localhost:8000"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE"
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-TABLE_NAME = "project_knowledge"
 
 # ── Doc type detection ────────────────────────────────────────────────────────
 
@@ -98,7 +92,7 @@ def main():
     print(f"Loading embedding model...")
 
     model = SentenceTransformer(EMBEDDING_MODEL)
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    conn = connect()
 
     # Find all markdown files recursively
     md_files = list(docs_path.rglob("*.md"))
@@ -123,21 +117,19 @@ def main():
         print(f"  ingesting [{doc_type:8}] [{specificity:16}] {rel_path} ({len(chunks)} chunks)")
 
         for chunk in chunks:
-            # Generate embedding
             embedding = model.encode(chunk["content"]).tolist()
 
-            # Upsert into Supabase
-            supabase.table(TABLE_NAME).insert({
-                "project_name": project_name,
-                "doc_type": doc_type,
-                "specificity": specificity,
-                "heading": chunk["heading"],
-                "content": chunk["content"],
-                "embedding": embedding,
-            }).execute()
+            conn.execute(
+                f"""INSERT INTO {TABLE}
+                    (project_name, doc_type, specificity, heading, content, embedding)
+                    VALUES (%s, %s, %s, %s, %s, %s)""",
+                (project_name, doc_type, specificity,
+                 chunk["heading"], chunk["content"], str(embedding)),
+            )
 
             total_chunks += 1
 
+    conn.close()
     print(f"\nDone. Ingested {total_chunks} chunks from {len(md_files) - skipped_files} files.")
     print(f"Skipped {skipped_files} files (too small or empty).")
 
