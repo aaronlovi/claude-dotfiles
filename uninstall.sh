@@ -79,6 +79,16 @@ for skill_dir in "$SCRIPT_DIR"/skills/*/; do
 done
 rmdir "$TARGET_DIR/skills" 2>/dev/null && echo "  removed empty: $TARGET_DIR/skills" || true
 
+# --- Agents ---
+echo ""
+echo "Checking agents..."
+for agent in "$SCRIPT_DIR"/agents/*.md; do
+    [[ -e "$agent" ]] || continue
+    name="$(basename "$agent")"
+    remove_if_ours "$TARGET_DIR/agents/$name"
+done
+rmdir "$TARGET_DIR/agents" 2>/dev/null && echo "  removed empty: $TARGET_DIR/agents" || true
+
 # --- Rules ---
 echo ""
 echo "Checking rules..."
