@@ -43,6 +43,15 @@ def detect_doc_type(filename: str) -> str:
             return doc_type
     return "other"
 
+# ── Specificity detection ─────────────────────────────────────────────────────
+
+def detect_specificity(rel_path: Path) -> str:
+    """Detect whether a doc is generalized or project-specific based on its path."""
+    parts = [p.lower() for p in rel_path.parts]
+    if "generalized-requirements" in parts:
+        return "generalized"
+    return "project_specific"
+
 # ── Chunking ──────────────────────────────────────────────────────────────────
 
 def chunk_by_heading(content: str, min_chunk_size: int = 100) -> list[dict]:
@@ -99,8 +108,9 @@ def main():
     skipped_files = 0
 
     for md_file in sorted(md_files):
-        doc_type = detect_doc_type(md_file.name)
         rel_path = md_file.relative_to(docs_path)
+        doc_type = detect_doc_type(md_file.name)
+        specificity = detect_specificity(rel_path)
 
         content = md_file.read_text(encoding="utf-8")
         chunks = chunk_by_heading(content)
@@ -110,7 +120,7 @@ def main():
             skipped_files += 1
             continue
 
-        print(f"  ingesting [{doc_type:8}] {rel_path} ({len(chunks)} chunks)")
+        print(f"  ingesting [{doc_type:8}] [{specificity:16}] {rel_path} ({len(chunks)} chunks)")
 
         for chunk in chunks:
             # Generate embedding
@@ -120,6 +130,7 @@ def main():
             supabase.table(TABLE_NAME).insert({
                 "project_name": project_name,
                 "doc_type": doc_type,
+                "specificity": specificity,
                 "heading": chunk["heading"],
                 "content": chunk["content"],
                 "embedding": embedding,
