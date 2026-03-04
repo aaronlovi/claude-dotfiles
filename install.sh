@@ -127,7 +127,7 @@ done
 echo ""
 echo "Installing scripts..."
 mkdir -p "$TARGET_DIR/scripts"
-for script in "$SCRIPT_DIR"/scripts/*.sh; do
+for script in "$SCRIPT_DIR"/scripts/*.sh "$SCRIPT_DIR"/scripts/*.py; do
     name="$(basename "$script")"
     install_file "$script" "$TARGET_DIR/scripts/$name"
 done
@@ -145,4 +145,4 @@ echo "  - CLAUDE.md (global preferences)"
 echo "  - settings.json (allowed tools + env)"
 echo "  - $(ls "$SCRIPT_DIR"/commands/*.md | wc -l) slash commands"
 echo "  - $(ls -d "$SCRIPT_DIR"/skills/*/ | wc -l) skills"
-echo "  - $(ls "$SCRIPT_DIR"/scripts/*.sh | wc -l) script(s)"
+echo "  - $(ls "$SCRIPT_DIR"/scripts/*.sh "$SCRIPT_DIR"/scripts/*.py 2>/dev/null | wc -l) script(s)"
