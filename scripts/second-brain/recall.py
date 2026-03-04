@@ -25,14 +25,9 @@ Specificity:    generalized, project_specific
 import sys
 import argparse
 from sentence_transformers import SentenceTransformer
-from supabase import create_client
+from db import connect, TABLE
 
-# ── Configuration ─────────────────────────────────────────────────────────────
-
-SUPABASE_URL = "http://localhost:8000"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE"
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-TABLE_NAME = "project_knowledge"
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
@@ -46,42 +41,57 @@ def main():
     parser.add_argument("--limit", type=int, default=5, help="Number of results (default: 5)")
     args = parser.parse_args()
 
-    # Load model and generate query embedding
     model = SentenceTransformer(EMBEDDING_MODEL)
     query_embedding = model.encode(args.query).tolist()
 
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    conn = connect()
 
-    params = {
-        "query_embedding": query_embedding,
-        "match_count": args.limit,
-    }
+    conditions = []
+    filter_params: list = []
 
     if args.project:
-        params["filter_project"] = args.project
+        conditions.append("project_name = %s")
+        filter_params.append(args.project)
     if args.doc_type:
-        params["filter_doc_type"] = args.doc_type
+        conditions.append("doc_type = %s")
+        filter_params.append(args.doc_type)
     if args.specificity:
-        params["filter_specificity"] = args.specificity
+        conditions.append("specificity = %s")
+        filter_params.append(args.specificity)
 
-    results = supabase.rpc("match_documents_filtered", params).execute()
+    where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    embedding_str = str(query_embedding)
 
-    if not results.data:
+    # Param order must match SQL: SELECT %s, WHERE %s..., ORDER BY %s, LIMIT %s
+    params = [embedding_str, *filter_params, embedding_str, args.limit]
+
+    rows = conn.execute(
+        f"""SELECT project_name, doc_type, specificity, heading, content,
+                   1 - (embedding <=> %s::vector) AS similarity
+            FROM {TABLE}
+            {where}
+            ORDER BY embedding <=> %s::vector
+            LIMIT %s""",
+        params,
+    ).fetchall()
+
+    conn.close()
+
+    if not rows:
         print("No results found.")
         sys.exit(0)
 
-    # Output results in a format Claude Code can use as context
-    print(f"=== Second Brain: {len(results.data)} results for \"{args.query}\" ===\n")
+    print(f"=== Second Brain: {len(rows)} results for \"{args.query}\" ===\n")
 
-    for i, row in enumerate(results.data, 1):
+    for i, row in enumerate(rows, 1):
         print(f"--- Result {i} ---")
-        print(f"Project:      {row['project_name']}")
-        print(f"Type:         {row['doc_type']}")
-        print(f"Specificity:  {row['specificity']}")
-        print(f"Heading:      {row['heading']}")
-        print(f"Score:        {row['similarity']:.3f}")
+        print(f"Project:      {row[0]}")
+        print(f"Type:         {row[1]}")
+        print(f"Specificity:  {row[2]}")
+        print(f"Heading:      {row[3]}")
+        print(f"Score:        {row[5]:.3f}")
         print()
-        print(row["content"])
+        print(row[4])
         print()
 
 if __name__ == "__main__":

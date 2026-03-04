@@ -1,1 +1,3 @@
 scripts/review-logs/
+scripts/second-brain/.env
+__pycache__/
