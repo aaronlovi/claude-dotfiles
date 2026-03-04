@@ -8,28 +8,30 @@ Global configuration, slash commands, and skills for [Claude Code](https://docs.
 |------|-------------|
 | `CLAUDE.md` | Global preferences (Mermaid diagrams, numbered headings, ToC conventions) |
 | `settings.json` | Allowed tools and environment variables |
-| `commands/` | 14 slash commands for a requirements-to-Jira pipeline |
+| `commands/` | 14 slash commands — a requirements-to-Jira pipeline plus second brain integration |
 | `skills/` | 4 skills for prompt management |
-| `scripts/` | Maintenance scripts for reviewing/iterating on slash commands |
+| `scripts/` | Second brain management scripts and maintenance utilities |
 
 ### Slash Commands
 
-| Command | Purpose |
-|---------|---------|
-| `/extract-requirements` | Extract business and technical requirements from a codebase |
-| `/extract-flows` | Catalog system flows with inputs, outputs, happy/error paths |
-| `/ddd-analysis` | Domain-Driven Design analysis of a codebase |
-| `/decompose-services` | Identify service boundaries from requirements |
-| `/generate-jira-tasks` | Generate implementation-ordered Jira tasks |
-| `/review-requirements` | Cross-document consistency review |
-| `/generalize-requirements` | Create platform-agnostic versions of requirements |
-| `/generalize-flows` | Create platform-agnostic flow catalog |
-| `/generalize-ddd-analysis` | Create platform-agnostic DDD analysis |
-| `/analyze-codebase` | Produce a reading-order guide for a codebase |
-| `/ingest-second-brain` | Ingest pipeline documents into the second brain |
-| `/recall` | Query the second brain for relevant context |
-| `/self-review-protocol` | Self-review convergence protocol for output quality |
-| `/pipeline` | Show the full pipeline stage order |
+Commands are listed in pipeline stage order. Run `/pipeline` to see the full sequence.
+
+| Command | Stage | Purpose |
+|---------|-------|---------|
+| `/ddd-analysis` | 1 | Domain-Driven Design analysis of a codebase |
+| `/analyze-codebase` | 2 | Produce a reading-order guide for a codebase |
+| `/extract-requirements` | 3 | Extract business and technical requirements from a codebase |
+| `/extract-flows` | 3b | Catalog system flows with inputs, outputs, happy/error paths |
+| `/generalize-requirements` | 4 | Create platform-agnostic versions of requirements |
+| `/generalize-ddd-analysis` | 4b | Create platform-agnostic DDD analysis |
+| `/generalize-flows` | 4c | Create platform-agnostic flow catalog |
+| `/decompose-services` | 5 | Identify service boundaries from requirements |
+| `/generate-jira-tasks` | 6 | Generate implementation-ordered Jira tasks |
+| `/review-requirements` | 7 | Cross-document consistency review |
+| `/ingest-second-brain` | 8 | Ingest pipeline documents into the second brain |
+| `/recall` | — | Query the second brain for relevant context |
+| `/self-review-protocol` | — | Self-review convergence protocol for output quality |
+| `/pipeline` | — | Show the full pipeline stage order |
 
 ### Skills
 
@@ -48,7 +50,7 @@ cd ~/dev/claude-dotfiles
 ./install.sh
 ```
 
-After installation, copy `.env.example` to `~/.claude/.env` and configure machine-specific settings (e.g., `OBSIDIAN_VAULT` path for pipeline output).
+After installation, copy `.env.example` to `~/.claude/.env` and configure machine-specific settings (e.g., `OBSIDIAN_VAULT` path for pipeline output). This is separate from the database `.env` described in the Second Brain section below.
 
 ### Symlink mode (default)
 
@@ -66,7 +68,65 @@ Files are copied into `~/.claude`. Use this if you want a standalone install tha
 
 - Existing files are backed up to `~/.claude/backup-<timestamp>/` before being replaced
 - Files that are already correctly symlinked are skipped
-- The script is idempotent -- safe to run multiple times
+- The script is idempotent — safe to run multiple times
+
+## Second Brain (PostgreSQL + pgvector)
+
+The second brain stores semantic embeddings of pipeline output for `/recall` queries. It requires PostgreSQL with the `pgvector` extension and a few Python packages.
+
+### Prerequisites
+
+```bash
+pip install psycopg python-dotenv sentence-transformers
+```
+
+### Database Setup
+
+Use the following `docker-compose.yml` (or add the postgres service to an existing compose file):
+
+```yaml
+name: global_infra
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5456}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
+```
+
+Start it and initialize the schema:
+
+```bash
+docker compose up -d
+cd scripts/second-brain
+cp .env.example .env        # edit if you changed ports/credentials
+python3 setup.py
+```
+
+The database `.env` at `scripts/second-brain/.env` configures the connection (host, port, user, password, database). The defaults match the `docker-compose.yml` above.
+
+### Management
+
+Use the menu-driven interface to list, ingest, query, and delete documents:
+
+```bash
+./scripts/second-brain/brain.sh
+```
 
 ## Maintenance
 
