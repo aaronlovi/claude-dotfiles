@@ -105,6 +105,7 @@ mkdir -p "$TARGET_DIR"
 echo "Installing top-level files..."
 install_file "$SCRIPT_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
 install_file "$SCRIPT_DIR/settings.json" "$TARGET_DIR/settings.json"
+install_file "$SCRIPT_DIR/.env.example" "$TARGET_DIR/.env.example"
 
 # --- Slash commands ---
 echo ""
@@ -121,6 +122,16 @@ echo "Installing skills..."
 for skill_dir in "$SCRIPT_DIR"/skills/*/; do
     name="$(basename "$skill_dir")"
     install_dir "$SCRIPT_DIR/skills/$name" "$TARGET_DIR/skills/$name"
+done
+
+# --- Rules (path-scoped CLAUDE.md fragments) ---
+echo ""
+echo "Installing rules..."
+mkdir -p "$TARGET_DIR/rules"
+for rule in "$SCRIPT_DIR"/rules/*.md; do
+    [[ -e "$rule" ]] || continue
+    name="$(basename "$rule")"
+    install_file "$rule" "$TARGET_DIR/rules/$name"
 done
 
 # --- Scripts (top-level files) ---
@@ -154,5 +165,12 @@ echo "  - CLAUDE.md (global preferences)"
 echo "  - settings.json (allowed tools + env)"
 echo "  - $(ls "$SCRIPT_DIR"/commands/*.md | wc -l) slash commands"
 echo "  - $(ls -d "$SCRIPT_DIR"/skills/*/ | wc -l) skills"
+echo "  - $(ls "$SCRIPT_DIR"/rules/*.md 2>/dev/null | wc -l) rule(s)"
 echo "  - $(ls "$SCRIPT_DIR"/scripts/*.sh 2>/dev/null | wc -l) script(s)"
 echo "  - $(ls -d "$SCRIPT_DIR"/scripts/*/ 2>/dev/null | grep -cv review-logs) script subdirectory(s)"
+
+if [[ ! -f "$TARGET_DIR/.env" ]]; then
+    echo ""
+    echo "NOTE: No ~/.claude/.env found. Copy the example and edit:"
+    echo "  cp $TARGET_DIR/.env.example $TARGET_DIR/.env"
+fi
