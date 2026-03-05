@@ -10,3 +10,8 @@
   - `### 2.2. OAuth2 - Grant Types`
   - `#### 2.2.1. OAuth2 - Grant Types - Resource Owner Password (ROPC)`
 - Every markdown document should have a Table of Contents after the title. Create one if missing, and keep it in sync with the numbered headings.
+
+# Git Commits
+
+- Use conventional commits (e.g., `feat:`, `fix:`, `chore:`, `docs:`, etc.).
+- If a Jira ticket is known, append it in parentheses at the end of the subject line. Example: `chore: update dependencies (HRG-9876)`
