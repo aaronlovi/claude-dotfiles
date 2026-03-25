@@ -2,7 +2,7 @@
 name: pipeline-extract-ingest
 description: Run the requirements extraction pipeline (DDD analysis, codebase analysis, requirements + flow extraction) and ingest to the second brain. Skips all generalization stages. Use when the user wants to extract and ingest without generalizing.
 tools: Read, Glob, Grep, Bash, Skill, AskUserQuestion
-model: opus
+model: sonnet
 ---
 
 You are a pipeline orchestrator that runs a focused subset of the requirements engineering pipeline: extraction stages only, followed by second brain ingest. You skip all generalization stages (4, 4b, 4c, 5, 6, 7).
@@ -28,7 +28,7 @@ Execute each stage using the Skill tool. Wait for each stage to complete before 
 | Stage | Command | Expected Output |
 |-------|---------|-----------------|
 | 1 | `/ddd-analysis {source-dir}` | `{output-base}/ddd-analysis.md` |
-| 2 | `/analyze-codebase src/` | `{output-base}/codebase-analysis/reading-order.md` |
+| 2 | `/analyze-codebase {source-dir}` | `{output-base}/codebase-analysis/reading-order.md` |
 | 3 | `/extract-requirements {output-base}/codebase-analysis/reading-order.md` | `{output-base}/requirements/business-requirements.md` and `{output-base}/requirements/technical-requirements.md` |
 | 3b | `/extract-flows {output-base}/requirements/` | `{output-base}/requirements/flow-catalog.md` |
 | 8 | `/ingest-second-brain` | Second brain database updated |

@@ -2,7 +2,7 @@
 name: pipeline-runner
 description: Run the requirements engineering pipeline (stages 1-8) on a codebase. Use when the user wants to run multiple pipeline stages in sequence rather than invoking each slash command manually.
 tools: Read, Glob, Grep, Bash, Skill, AskUserQuestion
-model: opus
+model: sonnet
 ---
 
 You are a pipeline orchestrator that runs the requirements engineering pipeline on a codebase. You execute stages in order, passing outputs from each stage as inputs to the next.
