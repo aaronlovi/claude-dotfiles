@@ -59,21 +59,38 @@ def main():
         conditions.append("specificity = %s")
         filter_params.append(args.specificity)
 
-    where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
     embedding_str = str(query_embedding)
 
-    # Param order must match SQL: SELECT %s, WHERE %s..., ORDER BY %s, LIMIT %s
-    params = [embedding_str, *filter_params, embedding_str, args.limit]
-
-    rows = conn.execute(
-        f"""SELECT project_name, doc_type, specificity, heading, content,
-                   1 - (embedding <=> %s::vector) AS similarity
-            FROM {TABLE}
-            {where}
-            ORDER BY embedding <=> %s::vector
-            LIMIT %s""",
-        params,
-    ).fetchall()
+    if conditions:
+        # When filters are present, use a materialized CTE to pre-filter rows before
+        # the vector sort. This prevents the IVFFlat index from doing a global top-K
+        # search and then discarding filtered rows (which yields zero results when no
+        # filtered rows happen to land in the global top-K).
+        where = f"WHERE {' AND '.join(conditions)}"
+        params = [*filter_params, embedding_str, embedding_str, args.limit]
+        rows = conn.execute(
+            f"""WITH filtered AS MATERIALIZED (
+                    SELECT project_name, doc_type, specificity, heading, content, embedding
+                    FROM {TABLE}
+                    {where}
+                )
+                SELECT project_name, doc_type, specificity, heading, content,
+                       1 - (embedding <=> %s::vector) AS similarity
+                FROM filtered
+                ORDER BY embedding <=> %s::vector
+                LIMIT %s""",
+            params,
+        ).fetchall()
+    else:
+        params = [embedding_str, embedding_str, args.limit]
+        rows = conn.execute(
+            f"""SELECT project_name, doc_type, specificity, heading, content,
+                       1 - (embedding <=> %s::vector) AS similarity
+                FROM {TABLE}
+                ORDER BY embedding <=> %s::vector
+                LIMIT %s""",
+            params,
+        ).fetchall()
 
     conn.close()
 
