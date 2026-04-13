@@ -115,7 +115,8 @@ After individual file reviews complete, consider the changeset as a whole:
 After all review agents return, merge and deduplicate findings. Classify each as:
 
 - **Critical** — Very likely bugs, security vulnerabilities, or correctness issues. **Always fix.**
-- **Improvement** — Concrete suggestions for correctness, maintainability, or robustness. **Fix unless clearly a design decision.**
+- **Improvement** — Concrete suggestions for correctness, maintainability, or robustness. **Always fix** unless clearly a design decision.
+- **Test** — Missing test coverage, weak assertions, missing error/edge case paths. **Always fix** — do not defer test gaps to other skills. If a production code path has no test, write one now.
 - **Test Refactoring** — DRY, data-driven, and refactoring opportunities in tests. **Fix if straightforward; skip if it would require large rewrites.**
 - **Nitpick** — Minor observations. **Skip** (do not fix).
 
@@ -123,7 +124,7 @@ Report the findings to the user grouped by severity before fixing.
 
 ### Step 3: Fix
 
-If there are no Critical or Improvement findings to fix, skip to Step 5.
+If there are no Critical, Improvement, or Test findings to fix, skip to Step 5.
 
 Use Agent tool subagents to fix issues in parallel. Group fixes by file (never have two agents editing the same file). Each fix agent receives:
 - The file path
